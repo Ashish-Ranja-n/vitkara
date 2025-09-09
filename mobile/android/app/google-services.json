@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "425965460296",
+    "project_id": "vitkara",
+    "storage_bucket": "vitkara.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:425965460296:android:YOUR_ANDROID_APP_ID",
+        "android_client_info": {
+          "package_name": "com.vitkara.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "425965460296-hi3u74h2css3bhin8rebopef0r7nol66.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "YOUR_ANDROID_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "425965460296-hi3u74h2css3bhin8rebopef0r7nol66.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+
+
