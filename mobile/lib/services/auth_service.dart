@@ -29,7 +29,7 @@ class AuthService {
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
     serverClientId:
-        '425965460296-c5kapm3apielujsfu8vegjnu80nf8ttn.apps.googleusercontent.com',
+        '425965460296-bkm1bphn5di9nng1fudagu9madge6k40.apps.googleusercontent.com',
   );
 
   // Store tokens
@@ -43,7 +43,7 @@ class AuthService {
   Future<AuthResult> startAuth(String contact) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/start'),
+        Uri.parse('$baseUrl/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'contact': contact}),
       );
@@ -66,7 +66,7 @@ class AuthService {
   Future<AuthResult> verifyOtp(String pendingId, String otp) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/verify'),
+        Uri.parse('$baseUrl/auth/verify-otp'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({'pendingId': pendingId, 'otp': otp}),
       );
