@@ -22,11 +22,9 @@ class AuthResult {
 }
 
 class AuthService {
-  // Base URL for API requests. Defaults to the Render-hosted web service URL.
-  // Override at build time with: --dart-define=API_BASE_URL=https://your-api.onrender.com/api
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://vitkara-web-service.onrender.com/api',
+    defaultValue: 'https://vitkara.com/api',
   );
   static final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
