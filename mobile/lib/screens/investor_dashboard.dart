@@ -242,8 +242,8 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
             end: Alignment.bottomCenter,
             colors: [
               Color.fromARGB(255, 0, 32, 46),
-              Color.fromARGB(235, 0, 0, 0),
-              Color.fromARGB(235, 0, 0, 0),
+              Color.fromARGB(255, 0, 0, 0),
+              Color.fromARGB(255, 0, 0, 0),
             ],
           ),
         ),
@@ -252,8 +252,8 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
             // animated particle background (tweak densityMultiplier/minParticles/speed here)
             Positioned.fill(
               child: AnimatedBackground(
-                densityMultiplier: 10.0,
-                minParticles: 300,
+                densityMultiplier: 0.8,
+                minParticles: 10,
                 speed: 0.85,
                 connectThreshold: 160.0,
               ),
