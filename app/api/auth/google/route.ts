@@ -1,35 +1,37 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../lib/db';
 import Investor from '../../../../models/Investor';
-import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export async function POST(request: Request) {
   try {
     const body: unknown = await request.json();
-    if (!body || typeof body !== 'object' || !('idToken' in body)) {
-      return NextResponse.json({ message: 'Missing token' }, { status: 400 });
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      !('email' in body) ||
+      !('displayName' in body)
+    ) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
     }
-    const { idToken } = body as { idToken: string };
-    if (!idToken) {
-      return NextResponse.json({ message: 'Missing token' }, { status: 400 });
+
+    const { email, displayName, photoUrl } = body as {
+      email: string;
+      displayName: string;
+      photoUrl?: string;
+    };
+
+    if (!email || !displayName) {
+      return NextResponse.json(
+        { success: false, message: 'Missing required fields' },
+        { status: 400 }
+      );
     }
 
     await dbConnect();
-
-    // Verify Google token
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    if (!payload || !payload.email || !payload.name) {
-      return NextResponse.json({ message: 'Invalid Google token' }, { status: 401 });
-    }
-
-    const { email, name, picture } = payload;
 
     // Check if investor exists
     let investor = await Investor.findOne({ email });
@@ -37,15 +39,18 @@ export async function POST(request: Request) {
     if (!investor) {
       investor = await Investor.create({
         email,
-        name,
-        avatar: picture,
+        name: displayName,
+        avatar: photoUrl,
       });
       isNew = true;
     }
 
     const jwtSecret = process.env.JWT_SECRET;
     if (!jwtSecret) {
-      return NextResponse.json({ message: 'Server not configured: missing JWT secret' }, { status: 500 });
+      return NextResponse.json(
+        { success: false, message: 'Server not configured: missing JWT secret' },
+        { status: 500 }
+      );
     }
 
     // Prepare JWT payload for mobile app (email, name)
@@ -62,12 +67,16 @@ export async function POST(request: Request) {
     delete (user as unknown as Record<string, unknown>).__v;
 
     return NextResponse.json({
-      accessToken,
+      success: true,
+      token: accessToken,
       user,
       isNew,
     });
   } catch (err) {
     console.error('Google auth error:', err);
-    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
