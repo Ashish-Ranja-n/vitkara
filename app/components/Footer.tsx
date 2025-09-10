@@ -8,7 +8,7 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-bold mb-4">Vitkara</h3>
           <p className="text-gray-400">
-            A micro-finance marketplace for small businesses.
+            An Investment Marketplace for Investors like you to make a difference in Local Markets.
           </p>
             <div className="mt-6 flex items-center space-x-3">
               <a
