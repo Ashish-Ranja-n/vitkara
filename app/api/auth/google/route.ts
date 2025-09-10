@@ -1,48 +1,68 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../../lib/db';
-import { verifyGoogleToken } from '../../../../lib/auth';
+import Investor from '../../../../models/Investor';
+import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const idToken = body?.idToken;
-
+    const body: unknown = await request.json();
+    if (!body || typeof body !== 'object' || !('idToken' in body)) {
+      return NextResponse.json({ message: 'Missing token' }, { status: 400 });
+    }
+    const { idToken } = body as { idToken: string };
     if (!idToken) {
       return NextResponse.json({ message: 'Missing token' }, { status: 400 });
     }
 
     await dbConnect();
 
-    const result = await verifyGoogleToken(idToken);
-
-    if (!result) {
-      return NextResponse.json({ message: 'Invalid token' }, { status: 401 });
+    // Verify Google token
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email || !payload.name) {
+      return NextResponse.json({ message: 'Invalid Google token' }, { status: 401 });
     }
 
-    const { investor, isNew } = result;
+    const { email, name, picture } = payload;
+
+    // Check if investor exists
+    let investor = await Investor.findOne({ email });
+    let isNew = false;
+    if (!investor) {
+      investor = await Investor.create({
+        email,
+        name,
+        avatar: picture,
+      });
+      isNew = true;
+    }
 
     const jwtSecret = process.env.JWT_SECRET;
-    const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
-    if (!jwtSecret || !jwtRefreshSecret) {
-      return NextResponse.json({ message: 'Server not configured: missing JWT secrets' }, { status: 500 });
+    if (!jwtSecret) {
+      return NextResponse.json({ message: 'Server not configured: missing JWT secret' }, { status: 500 });
     }
 
-    const accessToken = jwt.sign({ id: investor._id }, jwtSecret, {
-      expiresIn: '1d',
-    });
-    const refreshToken = jwt.sign({ id: investor._id }, jwtRefreshSecret, {
-      expiresIn: '7d',
-    });
+    // Prepare JWT payload for mobile app (email, name)
+    const tokenPayload = {
+      id: investor._id,
+      email: investor.email,
+      name: investor.name,
+    };
+    const accessToken = jwt.sign(tokenPayload, jwtSecret, { expiresIn: '7d' });
 
-    // sanitize user object
+    // Sanitize user object
     const user = investor.toObject ? investor.toObject() : investor;
-    delete (user as any).password;
-    delete (user as any).__v;
+    delete (user as unknown as Record<string, unknown>).password;
+    delete (user as unknown as Record<string, unknown>).__v;
 
     return NextResponse.json({
       accessToken,
-      refreshToken,
       user,
       isNew,
     });
