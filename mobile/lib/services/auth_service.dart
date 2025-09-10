@@ -52,10 +52,16 @@ class AuthService {
         final data = json.decode(response.body);
         return AuthResult(pendingId: data['pendingId']);
       } else {
-        final error = json.decode(response.body);
-        return AuthResult(
-          error: error['message'] ?? 'Failed to start authentication',
-        );
+        String errorMessage = 'Failed to start authentication';
+        if (response.body.isNotEmpty) {
+          try {
+            final error = json.decode(response.body);
+            errorMessage = error['message'] ?? errorMessage;
+          } catch (e) {
+            // Ignore if parsing fails, use default message
+          }
+        }
+        return AuthResult(error: errorMessage);
       }
     } catch (e) {
       return AuthResult(error: e.toString());
@@ -82,8 +88,16 @@ class AuthService {
           isNew: data['isNew'] ?? false,
         );
       } else {
-        final error = json.decode(response.body);
-        return AuthResult(error: error['message'] ?? 'Failed to verify OTP');
+        String errorMessage = 'Failed to verify OTP';
+        if (response.body.isNotEmpty) {
+          try {
+            final error = json.decode(response.body);
+            errorMessage = error['message'] ?? errorMessage;
+          } catch (e) {
+            // Ignore if parsing fails, use default message
+          }
+        }
+        return AuthResult(error: errorMessage);
       }
     } catch (e) {
       return AuthResult(error: e.toString());
@@ -128,10 +142,16 @@ class AuthService {
           isNew: data['isNew'] ?? false,
         );
       } else {
-        final error = json.decode(response.body);
-        return AuthResult(
-          error: error['message'] ?? 'Failed to authenticate with Google',
-        );
+        String errorMessage = 'Failed to authenticate with Google';
+        if (response.body.isNotEmpty) {
+          try {
+            final error = json.decode(response.body);
+            errorMessage = error['message'] ?? errorMessage;
+          } catch (e) {
+            // Ignore if parsing fails, use default message
+          }
+        }
+        return AuthResult(error: errorMessage);
       }
     } catch (e) {
       return AuthResult(error: e.toString());
