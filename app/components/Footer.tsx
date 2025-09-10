@@ -10,6 +10,34 @@ const Footer = () => {
           <p className="text-gray-400">
             A micro-finance marketplace for small businesses.
           </p>
+            <div className="mt-6 flex items-center space-x-3">
+              <a
+                href="https://play.google.com/store/apps"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Get Vitkara on Google Play"
+                className="inline-block transform hover:scale-105 transition-transform duration-200"
+              >
+                <img
+                  src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
+                  alt="Get it on Google Play"
+                  className="h-14 sm:h-16 w-auto"
+                />
+              </a>
+              <a
+                href="https://apps.apple.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Download Vitkara on the App Store"
+                className="inline-block transform hover:scale-105 transition-transform duration-200"
+              >
+                <img
+                  src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg"
+                  alt="Download on the App Store"
+                  className="h-10 sm:h-12 w-auto"
+                />
+              </a>
+            </div>
         </div>
         <div>
           <h3 className="text-lg font-bold mb-4">Quick Links</h3>
