@@ -14,10 +14,13 @@ const Background = () => {
     let height = (canvas.height = window.innerHeight);
     let particles: Particle[] = [];
 
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-    });
+      init();
+    };
+
+    window.addEventListener("resize", handleResize);
 
     class Particle {
       x: number;
@@ -58,9 +61,10 @@ const Background = () => {
 
     function init() {
       particles = [];
-      const numberOfParticles = (canvas!.height * canvas!.width) / 9000;
+      const numberOfParticles =
+        (canvas!.height * canvas!.width) / (width < 768 ? 5000 : 9000);
       for (let i = 0; i < numberOfParticles; i++) {
-        const size = Math.random() * 2 + 1;
+        const size = width < 768 ? Math.random() * 1 + 0.5 : Math.random() * 2 + 1;
         const x = Math.random() * (width - size * 2 - size * 2) + size * 2;
         const y = Math.random() * (height - size * 2 - size * 2) + size * 2;
         const dirX = Math.random() * 0.4 - 0.2;
@@ -72,12 +76,15 @@ const Background = () => {
 
     function connect() {
       let opacityValue = 1;
+      const connectFactor = width < 768 ? 8 : 7;
       for (let a = 0; a < particles.length; a++) {
         for (let b = a; b < particles.length; b++) {
           const distance =
-            (particles[a].x - particles[b].x) * (particles[a].x - particles[b].x) +
-            (particles[a].y - particles[b].y) * (particles[a].y - particles[b].y);
-          if (distance < (width / 7) * (height / 7)) {
+            (particles[a].x - particles[b].x) *
+              (particles[a].x - particles[b].x) +
+            (particles[a].y - particles[b].y) *
+              (particles[a].y - particles[b].y);
+          if (distance < (width / connectFactor) * (height / connectFactor)) {
             opacityValue = 1 - distance / 20000;
             ctx!.strokeStyle = `rgba(100, 255, 255, ${opacityValue})`;
             ctx!.lineWidth = 1;
@@ -103,7 +110,7 @@ const Background = () => {
     animate();
 
     return () => {
-      window.removeEventListener("resize", () => {});
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
