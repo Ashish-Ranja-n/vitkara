@@ -563,9 +563,9 @@ class _StaggeredItemState extends State<_StaggeredItem>
 // Sticky header delegate for Market page
 class _StickyMarketHeader extends SliverPersistentHeaderDelegate {
   @override
-  double get minExtent => 60;
+  double get minExtent => 80;
   @override
-  double get maxExtent => 68;
+  double get maxExtent => 92;
 
   @override
   Widget build(
