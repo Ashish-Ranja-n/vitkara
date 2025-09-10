@@ -9,10 +9,10 @@ type AuthenticatedRequest = NextRequest & {
   user: IInvestor;
 };
 
-type Handler = (req: AuthenticatedRequest, ...args: any[]) => Promise<NextResponse>;
+type Handler = (req: AuthenticatedRequest, ...args: unknown[]) => Promise<NextResponse>;
 
 export function protect(handler: Handler) {
-  return async (req: NextRequest, ...args: any[]) => {
+  return async (req: NextRequest, ...args: unknown[]) => {
     const authHeader = req.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return NextResponse.json({ message: 'Not authorized, no token' }, { status: 401 });
@@ -29,7 +29,7 @@ export function protect(handler: Handler) {
       const authenticatedReq = req as AuthenticatedRequest;
       authenticatedReq.user = user;
       return handler(authenticatedReq, ...args);
-    } catch (error) {
+    } catch {
       return NextResponse.json({ message: 'Not authorized, token failed' }, { status: 401 });
     }
   };
