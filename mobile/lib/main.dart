@@ -62,10 +62,17 @@ class _MbdimFlowState extends State<MbdimFlow> {
       return;
     }
 
+    // Handle Google Sign In result
+    if (result.accessToken != null) {
+      _handleAuthVerified(result);
+      return;
+    }
+
+    // Handle OTP flow
     if (result.pendingId != null) {
       setState(() {
         _pendingId = result.pendingId;
-        _step++;
+        _step++; // Move to OTP screen
       });
     }
   }
@@ -82,12 +89,19 @@ class _MbdimFlowState extends State<MbdimFlow> {
       return;
     }
 
+    // Update auth state with the new tokens
+    auth.updateAuthState(
+      isAuthenticated: true,
+      isNewUser: result.isNew,
+      token: result.accessToken,
+      user: result.user,
+    );
+
     // If user is new, go to profile completion
     if (result.isNew) {
-      setState(() => _step = 3);
+      setState(() => _step = 3); // Profile Info Screen
     } else {
-      // User has completed profile before, go to dashboard
-      setState(() => _step = 4);
+      setState(() => _step = 4); // Dashboard
     }
   }
 

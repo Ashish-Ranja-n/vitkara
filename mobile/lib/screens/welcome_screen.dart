@@ -187,6 +187,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                   SnackBar(content: Text(result.error!)),
                                 );
                               } else {
+                                // Pass the result to parent widget which will handle navigation
+                                // based on isNew flag - ProfileInfoScreen or Dashboard
                                 widget.onContinue(result);
                               }
                             }

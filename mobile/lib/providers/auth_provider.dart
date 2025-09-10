@@ -94,10 +94,30 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  void updateAuthState({
+    required bool isAuthenticated,
+    required bool isNewUser,
+    String? token,
+    Map<String, dynamic>? user,
+  }) {
+    _state = _state.copyWith(
+      accessToken: token,
+      user: user,
+      isAuthenticated: isAuthenticated,
+      isNewUser: isNewUser,
+    );
+    notifyListeners();
+  }
+
   Future<void> signInWithGoogle() async {
     final result = await _authService.signInWithGoogle();
-    if (result.error == null && result.pendingId != null) {
-      _state = _state.copyWith(pendingId: result.pendingId);
+    if (result.error == null && result.accessToken != null) {
+      _state = _state.copyWith(
+        accessToken: result.accessToken,
+        user: result.user,
+        isAuthenticated: true,
+        isNewUser: result.isNew,
+      );
       notifyListeners();
     } else {
       throw Exception(result.error ?? 'Failed to sign in with Google');
