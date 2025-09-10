@@ -39,6 +39,20 @@ class AuthService {
     await prefs.setString('refresh_token', refreshToken);
   }
 
+  // Used by static Google sign-in to store a single token (backend may return a single JWT)
+  static Future<void> saveToken(String? token) async {
+    if (token == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('access_token', token);
+  }
+
+  // Store user data as JSON string (used by static Google sign-in)
+  static Future<void> saveUserData(Map<String, dynamic>? user) async {
+    if (user == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user', json.encode(user));
+  }
+
   // Start OTP flow
   Future<AuthResult> startAuth(String contact) async {
     try {
@@ -107,53 +121,74 @@ class AuthService {
   // Google Sign In
   Future<AuthResult> signInWithGoogle() async {
     try {
-      // Force sign out to show account picker and fresh session
+      // Sign out first to ensure fresh sign-in
       await _googleSignIn.signOut();
 
+      // Sign in with Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+
       if (googleUser == null) {
-        return AuthResult(error: 'Google sign in cancelled');
+        return AuthResult(error: 'Google sign-in was cancelled');
       }
 
+      // Get authentication details
       final GoogleSignInAuthentication googleAuth =
           await googleUser.authentication;
-      final String? idToken = googleAuth.idToken;
 
-      if (idToken == null) {
-        return AuthResult(error: 'Failed to get ID token');
+      if (googleAuth.accessToken == null) {
+        return AuthResult(error: 'Failed to get Google access token');
       }
 
-      // Send the ID token to your backend
+      // Send the access token to your backend mobile endpoint
       final response = await http.post(
         Uri.parse('$baseUrl/auth/google'),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode({'idToken': idToken}),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: json.encode({
+          'accessToken': googleAuth.accessToken,
+          'idToken': googleAuth.idToken,
+          'email': googleUser.email,
+          'displayName': googleUser.displayName,
+          'photoUrl': googleUser.photoUrl,
+        }),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        await _saveTokens(data['accessToken'], data['refreshToken']);
 
-        return AuthResult(
-          accessToken: data['accessToken'],
-          refreshToken: data['refreshToken'],
-          user: data['user'],
-          isNew: data['isNew'] ?? false,
-        );
-      } else {
-        String errorMessage = 'Failed to authenticate with Google';
-        if (response.body.isNotEmpty) {
-          try {
-            final error = json.decode(response.body);
-            errorMessage = error['message'] ?? errorMessage;
-          } catch (e) {
-            // Ignore if parsing fails, use default message
-          }
+        if (data['success']) {
+          // Store the token using the correct key
+          await saveToken(data['token']);
+          await saveUserData(data['user']);
+
+          return AuthResult(
+            accessToken: data['token'],
+            user: data['user'],
+            isNew: data['isNew'] ?? false,
+          );
+        } else {
+          return AuthResult(error: data['message'] ?? 'Google sign-in failed');
         }
-        return AuthResult(error: errorMessage);
+      } else {
+        try {
+          final errorData = json.decode(response.body);
+          return AuthResult(
+            error: errorData['message'] ?? 'Server error during Google sign-in',
+          );
+        } catch (parseError) {
+          return AuthResult(error: 'Server error: ${response.statusCode}');
+        }
       }
+    } on FormatException {
+      return AuthResult(error: 'Invalid response format from server');
+    } on http.ClientException {
+      return AuthResult(
+        error: 'Connection failed. Please check your internet connection.',
+      );
     } catch (e) {
-      return AuthResult(error: e.toString());
+      return AuthResult(error: 'Google sign-in error: ${e.toString()}');
     }
   }
 
@@ -162,6 +197,7 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
+    await prefs.remove('user');
     await _googleSignIn.signOut();
   }
 }
