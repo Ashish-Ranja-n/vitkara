@@ -107,6 +107,9 @@ class AuthService {
   // Google Sign In
   Future<AuthResult> signInWithGoogle() async {
     try {
+      // Force sign out to show account picker and fresh session
+      await _googleSignIn.signOut();
+
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
         return AuthResult(error: 'Google sign in cancelled');
@@ -124,11 +127,7 @@ class AuthService {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/google'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'idToken': idToken,
-          'email': googleUser.email,
-          'name': googleUser.displayName,
-        }),
+        body: json.encode({'idToken': idToken}),
       );
 
       if (response.statusCode == 200) {

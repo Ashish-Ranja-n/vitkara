@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:label="Vitkara"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <!-- Google Sign-in Config -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version" />
-        <meta-data 
-            android:name="com.google.android.gms.auth.api.signin.client_id"
-            android:value="425965460296-c5kapm3apielujsfu8vegjnu80nf8ttn.apps.googleusercontent.com" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"

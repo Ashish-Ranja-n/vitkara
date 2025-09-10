@@ -15,9 +15,6 @@ export default function Home() {
             <br />
             <span className="text-cyan-400">Empower Local Shops.</span>
           </h1>
-          <p className="text-md font-semibold sm:text-xl max-w-3xl mx-auto text-gray-300 mb-8">
-            Vitkara is a micro-finance marketplace that funds small local shops by connecting them with everyday investors.
-          </p>
           <button className="bg-cyan-400 text-black font-bold py-3 px-8 rounded-full text-lg hover:bg-cyan-300 transition-transform transform hover:scale-105 flex items-center gap-2">
             <span>Explore Opportunities</span>
             <FaArrowRight />
