@@ -2,12 +2,6 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
-  // Detailed logging
-  console.log('=== API Request ===');
-  console.log('Method:', request.method);
-  console.log('URL:', request.url);
-  console.log('Headers:', Object.fromEntries(request.headers));
-  
   // Enable CORS
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
