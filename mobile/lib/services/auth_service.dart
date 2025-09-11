@@ -200,12 +200,38 @@ class AuthService {
   }
 
   // Sign Out
-  Future<void> signOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('access_token');
-    await prefs.remove('refresh_token');
-    await prefs.remove('user');
-    await prefs.remove('flow_completed');
-    await _googleSignIn.signOut();
+  Future<bool> signOut() async {
+    try {
+      // Call logout API to invalidate server-side session
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+      );
+
+      // Clear local storage regardless of API response
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('access_token');
+      await prefs.remove('refresh_token');
+      await prefs.remove('user');
+      await prefs.remove('flow_completed');
+      await _googleSignIn.signOut();
+
+      // Return true if API call was successful
+      return response.statusCode == 200;
+    } catch (e) {
+      // If API call fails, still clear local data
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('access_token');
+      await prefs.remove('refresh_token');
+      await prefs.remove('user');
+      await prefs.remove('flow_completed');
+      await _googleSignIn.signOut();
+
+      // Return false to indicate API call failed, but local logout succeeded
+      return false;
+    }
   }
 }

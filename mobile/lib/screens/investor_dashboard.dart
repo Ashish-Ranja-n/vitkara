@@ -26,22 +26,6 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   List<Shop> _filteredShops = [];
   String _selectedSegment = 'All Listings';
 
-  // mock authenticated user
-  final Map<String, dynamic> _user = {'name': 'Ashish', 'verified': true};
-
-  // demo fallback (TODO: replace with backend)
-  // demo fallback (TODO: replace with backend)
-  // Values are stored in paise (integer) to avoid floating point issues.
-  // Replace with backend-provided paise fields when available.
-  final Map<String, dynamic> _demoUserSummary = {
-    'total_balance_paise': 4000000, // ₹40,000.00
-    'invested_principal_paise': 3200000, // ₹32,000.00
-    'available_balance_paise': 800000, // ₹8,000.00
-    'accrued_returns_paise': 400000, // ₹4,000.00
-    'today_payout_est_paise': 12000, // ₹120.00
-    'next_payout_date': DateTime(2025, 9, 2),
-  };
-
   // mock user investments keyed by shop name
   final Map<String, Map<String, dynamic>> _userInvestments = {};
 
@@ -180,60 +164,6 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
       ),
     );
     final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
-
-    // derive INR (paise) values from existing state where possible, fall back to demo
-    // invested amounts in older mocks may be stored as INR doubles; convert to paise.
-    final int investedPrincipalPaiseFromState = _userInvestments.values
-        .fold<int>(0, (p, e) {
-          if (e.containsKey('invested')) {
-            final invested = e['invested'];
-            final investedRupees = (invested is num)
-                ? invested.toDouble()
-                : double.parse(invested.toString());
-            return p + (investedRupees * 100).round();
-          }
-          return p;
-        });
-
-    // Prefer backend/state values if available, otherwise demo fallback
-    final int totalBalancePaise =
-        _demoUserSummary.containsKey('total_balance_paise')
-        ? (_demoUserSummary['total_balance_paise'] as int)
-        : investedPrincipalPaiseFromState; // fallback: at least show invested if no total
-
-    final int investedPrincipalPaise = investedPrincipalPaiseFromState > 0
-        ? investedPrincipalPaiseFromState
-        : (_demoUserSummary['invested_principal_paise'] as int);
-
-    // available balance: prefer demo/backend field; otherwise compute a conservative value
-    final int availableBalancePaise =
-        _demoUserSummary.containsKey('available_balance_paise')
-        ? (_demoUserSummary['available_balance_paise'] as int)
-        : (totalBalancePaise - investedPrincipalPaise).clamp(
-            0,
-            totalBalancePaise,
-          );
-
-    // accrued returns (not used directly in this widget but available to pass to details)
-    final int accruedReturnsPaise =
-        _demoUserSummary.containsKey('accrued_returns_paise')
-        ? (_demoUserSummary['accrued_returns_paise'] as int)
-        : 0;
-
-    final int todayPayoutEstPaise =
-        _demoUserSummary.containsKey('today_payout_est_paise')
-        ? (_demoUserSummary['today_payout_est_paise'] as int)
-        : 0;
-
-    final DateTime? nextPayoutDate =
-        _demoUserSummary['next_payout_date'] is DateTime
-        ? _demoUserSummary['next_payout_date'] as DateTime
-        : null;
-
-    // validation: total must be >= invested principal
-    final bool balanceInconsistent =
-        totalBalancePaise < investedPrincipalPaise &&
-        investedPrincipalPaise > 0;
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
@@ -265,20 +195,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                   // Fixed header
                   _StickyMarketHeader().build(context, 0, false),
                   // Fixed overview board
-                  OverviewBoard(
-                    userName: _user['name'] as String? ?? 'User',
-                    verified: _user['verified'] as bool? ?? false,
-                    totalInvestmentPaise: totalBalancePaise,
-                    estimatedIndex: 1.25, // TODO: replace with backend value
-                    walletBalancePaise: availableBalancePaise,
-                    accruedReturnsPaise: accruedReturnsPaise,
-                    todayRsaPaise: todayPayoutEstPaise,
-                    yesterdayRsaPaise:
-                        (_demoUserSummary['today_payout_est_paise'] as int?) ??
-                        0,
-                    nextPayoutDate: nextPayoutDate,
-                    showWarning: balanceInconsistent,
-                  ),
+                  const OverviewBoard(),
                   // Fixed market summary
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -636,150 +553,6 @@ class _StickyMarketHeader extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) =>
       false;
-}
-
-// Mock chart card widget for dashboard
-class _MarketChartCard extends StatefulWidget {
-  @override
-  State<_MarketChartCard> createState() => _MarketChartCardState();
-}
-
-class _MarketChartCardState extends State<_MarketChartCard> {
-  bool showTotalReturn = true;
-  final List<double> mockData = [
-    1.0,
-    1.1,
-    1.15,
-    1.2,
-    1.18,
-    1.25,
-    1.3,
-    1.28,
-    1.32,
-    1.35,
-    1.33,
-    1.38,
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF12171C),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha((0.18 * 255).round()),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => setState(() => showTotalReturn = true),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: showTotalReturn
-                        ? const Color(0xFF0F9D58)
-                        : const Color(0xFF232A31),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    'Total Return',
-                    style: TextStyle(
-                      color: showTotalReturn ? Colors.white : Color(0xFFB7C2C8),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () => setState(() => showTotalReturn = false),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: !showTotalReturn
-                        ? const Color(0xFF0F9D58)
-                        : const Color(0xFF232A31),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Text(
-                    'NAV Per Unit',
-                    style: TextStyle(
-                      color: !showTotalReturn
-                          ? Colors.white
-                          : Color(0xFFB7C2C8),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 80,
-            child: CustomPaint(
-              painter: _SparklinePainter(
-                mockData,
-                accent: const Color(0xFF66FFA6),
-              ),
-              child: Container(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SparklinePainter extends CustomPainter {
-  final List<double> data;
-  final Color accent;
-  _SparklinePainter(this.data, {required this.accent});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = accent
-      ..strokeWidth = 2.5
-      ..style = PaintingStyle.stroke;
-    final path = Path();
-    if (data.isNotEmpty) {
-      final min = data.reduce((a, b) => a < b ? a : b);
-      final max = data.reduce((a, b) => a > b ? a : b);
-      for (int i = 0; i < data.length; i++) {
-        final x = i * size.width / (data.length - 1);
-        final y =
-            size.height -
-            ((data[i] - min) / (max - min + 0.0001)) * size.height;
-        if (i == 0) {
-          path.moveTo(x, y);
-        } else {
-          path.lineTo(x, y);
-        }
-      }
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
 
 // User panel card shown under the header — Vittas-first display

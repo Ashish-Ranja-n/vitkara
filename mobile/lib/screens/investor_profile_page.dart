@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'welcome_screen.dart';
 
 class InvestorProfilePage extends StatefulWidget {
   const InvestorProfilePage({super.key});
@@ -73,7 +76,10 @@ class _ProfilePageState extends State<InvestorProfilePage> {
             ListTile(
               leading: const Icon(Icons.logout),
               title: const Text('Sign out'),
-              onTap: () {},
+              onTap: () {
+                Navigator.pop(context); // Close the modal first
+                _signOut();
+              },
             ),
           ],
         ),
@@ -593,6 +599,62 @@ class _ProfilePageState extends State<InvestorProfilePage> {
         ),
       ),
     );
+  }
+
+  Future<void> _signOut() async {
+    // Show confirmation dialog
+    final shouldSignOut = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Sign out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Sign out'),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldSignOut == true) {
+      try {
+        // Call sign out from AuthProvider
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        await authProvider.signOut();
+
+        // Navigate to welcome screen with fade animation
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  WelcomeScreen(onContinue: (_) {}),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    return FadeTransition(opacity: animation, child: child);
+                  },
+              transitionDuration: const Duration(milliseconds: 500),
+            ),
+            (route) => false, // Remove all previous routes
+          );
+        }
+      } catch (e) {
+        // Show error if sign out fails
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to sign out: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    }
   }
 
   void _confirmDelete() {

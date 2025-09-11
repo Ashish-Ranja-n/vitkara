@@ -1,47 +1,64 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import '../design_tokens.dart';
 import '../utils/formatters.dart';
 import '../screens/overview_detail.dart';
+import '../services/investor_service.dart';
 
-class OverviewBoard extends StatelessWidget {
-  final String userName;
-  final bool verified;
-  final int totalInvestmentPaise;
-  final double estimatedIndex;
-  final int walletBalancePaise;
-  final int todayRsaPaise;
-  final int yesterdayRsaPaise;
-  final DateTime? nextPayoutDate;
-  final int? accruedReturnsPaise;
-  final bool showWarning;
+class OverviewBoard extends StatefulWidget {
+  const OverviewBoard({super.key});
 
-  const OverviewBoard({
-    super.key,
-    required this.userName,
-    required this.verified,
-    required this.totalInvestmentPaise,
-    required this.estimatedIndex,
-    required this.walletBalancePaise,
-    required this.todayRsaPaise,
-    required this.yesterdayRsaPaise,
-    required this.nextPayoutDate,
-    this.accruedReturnsPaise,
-    this.showWarning = false,
-  });
+  @override
+  State<OverviewBoard> createState() => _OverviewBoardState();
+}
 
-  // Demo fallback (TODO: replace with backend values)
-  // final demoOverview example:
-  // final demoOverview = {
-  //   'user_name': 'Ashish',
-  //   'total_investment_paise': 4000000,      // ₹40,000.00
-  //   'estimated_index': 1.25,               // display as ~1.25x
-  //   'wallet_balance_paise': 800000,        // ₹8,000.00
-  //   'today_rsa_paise': 12000,              // ₹120.00
-  //   'yesterday_rsa_paise': 10000,          // ₹100.00
-  //   'next_payout_date': '2025-09-02'
-  // };
+class _OverviewBoardState extends State<OverviewBoard> {
+  bool _isLoading = true;
+  String _userName = 'User';
+  bool _verified = false;
+  int _totalInvestmentPaise = 0;
+  int _walletBalancePaise = 0;
+
+  // Values that are not available from API - keep as N/A or defaults
+  final double _estimatedIndex = 1.25; // Default value
+  final int _todayRsaPaise = 0; // N/A
+  final int _yesterdayRsaPaise = 0; // N/A
+  final DateTime? _nextPayoutDate = null; // N/A
+  final int? _accruedReturnsPaise = null; // N/A
+  final bool _showWarning = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInvestorData();
+  }
+
+  Future<void> _loadInvestorData() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final investorService = InvestorService();
+      final profile = await investorService.getProfile();
+
+      if (profile != null && mounted) {
+        setState(() {
+          _userName = profile['name'] ?? 'User';
+          _verified = profile['verified'] ?? false;
+          _totalInvestmentPaise = ((profile['totalInvestment'] ?? 0) * 100)
+              .round(); // Convert to paise
+          _walletBalancePaise = ((profile['walletBalance'] ?? 0) * 100)
+              .round(); // Convert to paise
+        });
+      }
+    } catch (e) {
+      // If API fails, keep default values
+      print('Failed to load investor data: $e');
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,14 +74,14 @@ class OverviewBoard extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => OverviewDetailScreen(
-                userName: userName,
-                totalInvestmentPaise: totalInvestmentPaise,
+                userName: _userName,
+                totalInvestmentPaise: _totalInvestmentPaise,
                 investedPrincipalPaise: null,
-                availableBalancePaise: walletBalancePaise,
-                accruedReturnsPaise: accruedReturnsPaise,
-                todayPayoutEstPaise: todayRsaPaise,
-                yesterdayPayoutPaise: yesterdayRsaPaise,
-                nextPayoutDate: nextPayoutDate,
+                availableBalancePaise: _walletBalancePaise,
+                accruedReturnsPaise: _accruedReturnsPaise,
+                todayPayoutEstPaise: _todayRsaPaise,
+                yesterdayPayoutPaise: _yesterdayRsaPaise,
+                nextPayoutDate: _nextPayoutDate,
               ),
             ),
           );
@@ -94,7 +111,7 @@ class OverviewBoard extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          'Hi $userName',
+                          'Hi $_userName',
                           style: GoogleFonts.inter(
                             fontSize: small ? 18 : 20,
                             fontWeight: FontWeight.w600,
@@ -102,7 +119,7 @@ class OverviewBoard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        if (verified)
+                        if (_verified)
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
@@ -153,7 +170,7 @@ class OverviewBoard extends StatelessWidget {
                     child: Row(
                       children: [
                         Text(
-                          formatIndex(estimatedIndex),
+                          formatIndex(_estimatedIndex),
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
@@ -186,9 +203,9 @@ class OverviewBoard extends StatelessWidget {
                           tag: 'total_investment',
                           child: Semantics(
                             label: 'Total investment',
-                            value: formatINRFromPaise(totalInvestmentPaise),
+                            value: formatINRFromPaise(_totalInvestmentPaise),
                             child: Text(
-                              formatINRFromPaise(totalInvestmentPaise),
+                              formatINRFromPaise(_totalInvestmentPaise),
                               style: GoogleFonts.inter(
                                 fontSize: 28,
                                 fontWeight: FontWeight.w700,
@@ -220,7 +237,7 @@ class OverviewBoard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            formatINRFromPaise(walletBalancePaise),
+                            formatINRFromPaise(_walletBalancePaise),
                             style: AppTypography.cardTitle.copyWith(
                               color: AppColors.primaryText,
                             ),
@@ -256,7 +273,7 @@ class OverviewBoard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          formatINRFromPaise(todayRsaPaise),
+                          formatINRFromPaise(_todayRsaPaise),
                           style: AppTypography.caption.copyWith(
                             color: AppColors.kpiHighlight,
                           ),
@@ -274,7 +291,7 @@ class OverviewBoard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          formatINRFromPaise(yesterdayRsaPaise),
+                          formatINRFromPaise(_yesterdayRsaPaise),
                           style: AppTypography.caption.copyWith(
                             color: AppColors.mutedText,
                           ),
@@ -285,9 +302,7 @@ class OverviewBoard extends StatelessWidget {
                   Row(
                     children: [
                       Text(
-                        nextPayoutDate != null
-                            ? 'Next payout: ${DateFormat.yMMMd().format(nextPayoutDate!)}'
-                            : 'Next payout: —',
+                        'Next payout: —',
                         style: AppTypography.caption.copyWith(
                           color: AppColors.mutedText,
                         ),
@@ -302,7 +317,7 @@ class OverviewBoard extends StatelessWidget {
                 ],
               ),
 
-              if (showWarning)
+              if (_showWarning)
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Tooltip(

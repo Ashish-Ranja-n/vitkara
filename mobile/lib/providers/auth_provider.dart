@@ -149,9 +149,10 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signOut() async {
-    await _authService.signOut();
+  Future<bool> signOut() async {
+    final success = await _authService.signOut();
     _state = AuthState(isLoading: false);
     notifyListeners();
+    return success;
   }
 }

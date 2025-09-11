@@ -38,6 +38,8 @@ export async function GET(request: NextRequest) {
     age: investor.age,
     location: investor.location,
     verified: investor.verified,
+    totalInvestment: investor.totalInvestment,
+    walletBalance: investor.walletBalance,
     defaultDashboard: investor.defaultDashboard,
     createdAt: investor.createdAt,
   });
@@ -50,13 +52,15 @@ export async function PUT(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, avatar, age, location, city, defaultDashboard } = body;
+  const { name, avatar, age, location, city, defaultDashboard, totalInvestment, walletBalance } = body;
 
   if (name !== undefined) investor.name = name;
   if (avatar !== undefined) investor.avatar = avatar;
   if (age !== undefined) investor.age = age;
   if (location !== undefined) investor.location = location;
   if (defaultDashboard !== undefined) investor.defaultDashboard = defaultDashboard;
+  if (totalInvestment !== undefined) investor.totalInvestment = totalInvestment;
+  if (walletBalance !== undefined) investor.walletBalance = walletBalance;
 
   await investor.save();
 
@@ -68,6 +72,8 @@ export async function PUT(request: NextRequest) {
     age: investor.age,
     location: investor.location,
     verified: investor.verified,
+    totalInvestment: investor.totalInvestment,
+    walletBalance: investor.walletBalance,
     defaultDashboard: investor.defaultDashboard,
     createdAt: investor.createdAt,
   });
