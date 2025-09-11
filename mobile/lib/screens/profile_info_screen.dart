@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../design_tokens.dart';
 
 class ProfileInfoScreen extends StatefulWidget {
   final VoidCallback onNext;
@@ -47,13 +47,13 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
   Widget build(BuildContext context) {
     final ages = List.generate(63, (i) => i + 18); // 18..80
     return Scaffold(
-      backgroundColor: const Color(0xFF071014),
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(
           'Complete profile',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: AppTypography.title.copyWith(color: AppColors.primaryText),
         ),
-        backgroundColor: const Color(0xFF071014),
+        backgroundColor: AppColors.background,
         elevation: 0,
         centerTitle: true,
         systemOverlayStyle: SystemUiOverlayStyle.light,
@@ -64,7 +64,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
             bottom: MediaQuery.of(context).viewInsets.bottom,
           ),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.edge),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -75,39 +75,51 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                       Stack(
                         alignment: Alignment.bottomRight,
                         children: [
-                          const CircleAvatar(
-                            radius: 46,
-                            backgroundColor: Color(0xFF0F1A1C),
+                          CircleAvatar(
+                            radius: 50,
+                            backgroundColor: AppColors.inputBackground,
                             child: Icon(
                               Icons.person,
-                              size: 44,
-                              color: Colors.white,
+                              size: 48,
+                              color: AppColors.primaryText,
                             ),
                           ),
                           Positioned(
                             right: 0,
                             bottom: 0,
-                            child: InkWell(
-                              onTap: () {
-                                // Image picker intentionally omitted — implement with image_picker later.
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Add photo feature coming soon',
+                            child: Semantics(
+                              label: 'Add profile photo',
+                              hint: 'Tap to add or change your profile picture',
+                              child: InkWell(
+                                onTap: () {
+                                  // Image picker intentionally omitted — implement with image_picker later.
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: const Text(
+                                        'Add photo feature coming soon',
+                                      ),
+                                      backgroundColor: AppColors.warning,
                                     ),
+                                  );
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primaryCyan,
+                                    borderRadius: BorderRadius.circular(24),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: AppColors.shadow,
+                                        blurRadius: AppElevation.blur,
+                                        offset: Offset(0, AppElevation.offsetY),
+                                      ),
+                                    ],
                                   ),
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: Colors.teal,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: const Icon(
-                                  Icons.add_a_photo,
-                                  size: 16,
-                                  color: Colors.white,
+                                  child: Icon(
+                                    Icons.add_a_photo,
+                                    size: 20,
+                                    color: AppColors.background,
+                                  ),
                                 ),
                               ),
                             ),
@@ -117,7 +129,9 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Profile photo (optional)',
-                        style: GoogleFonts.poppins(color: Colors.white70),
+                        style: AppTypography.body.copyWith(
+                          color: AppColors.secondaryText,
+                        ),
                       ),
                     ],
                   ),
@@ -130,79 +144,116 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                     children: [
                       Text(
                         'Name',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        style: AppTypography.sectionHeading.copyWith(
+                          color: AppColors.primaryText,
                         ),
                       ),
                       const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _nameCtrl,
-                        textInputAction: TextInputAction.next,
-                        style: GoogleFonts.poppins(color: Colors.white),
-                        decoration: InputDecoration(
-                          hintText: 'Your full name',
-                          hintStyle: TextStyle(color: Colors.white54),
-                          filled: true,
-                          fillColor: const Color(0xFF0F1A1C),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: Colors.grey.shade800),
+                      Semantics(
+                        label: 'Enter your full name',
+                        hint: 'Type your complete name',
+                        child: TextFormField(
+                          controller: _nameCtrl,
+                          textInputAction: TextInputAction.next,
+                          style: AppTypography.bodyLarge.copyWith(
+                            color: AppColors.primaryText,
                           ),
+                          decoration: InputDecoration(
+                            hintText: 'Your full name',
+                            hintStyle: AppTypography.body.copyWith(
+                              color: AppColors.mutedText,
+                            ),
+                            filled: true,
+                            fillColor: AppColors.inputBackground,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.card,
+                              ),
+                              borderSide: BorderSide(
+                                color: AppColors.primaryCyan.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.card,
+                              ),
+                              borderSide: BorderSide(
+                                color: AppColors.primaryCyan.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.card,
+                              ),
+                              borderSide: BorderSide(
+                                color: AppColors.primaryCyan,
+                                width: 2,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? 'Enter your name'
+                              : null,
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty)
-                            ? 'Enter your name'
-                            : null,
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Location',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        style: AppTypography.sectionHeading.copyWith(
+                          color: AppColors.primaryText,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
+                          horizontal: 16,
+                          vertical: 16,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF0F1A1C),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.grey.shade800),
+                          color: AppColors.inputBackground,
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          border: Border.all(
+                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.location_on,
-                              color: Colors.tealAccent,
+                              color: AppColors.primaryCyan,
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 12),
                             Expanded(
                               child: Text(
                                 'Bengaluru, India',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  color: Colors.white70,
+                                style: AppTypography.body.copyWith(
+                                  color: AppColors.secondaryText,
                                 ),
                               ),
                             ),
                             TextButton(
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
+                                  SnackBar(
+                                    content: const Text(
                                       'Location detection coming soon',
                                     ),
+                                    backgroundColor: AppColors.warning,
                                   ),
                                 );
                               },
                               child: Text(
                                 'Detect',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.teal.shade200,
+                                style: AppTypography.button.copyWith(
+                                  color: AppColors.primaryCyan,
                                 ),
                               ),
                             ),
@@ -212,80 +263,90 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                       const SizedBox(height: 16),
                       Text(
                         'Age',
-                        style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
+                        style: AppTypography.sectionHeading.copyWith(
+                          color: AppColors.primaryText,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      SizedBox(
-                        height: 100,
-                        child: RotatedBox(
-                          quarterTurns: 3,
-                          child: ListWheelScrollView.useDelegate(
-                            controller: _ageCtrl,
-                            itemExtent: 48,
-                            diameterRatio: 1.6,
-                            physics: const FixedExtentScrollPhysics(),
-                            onSelectedItemChanged: (i) =>
-                                setState(() => _age = ages[i]),
-                            childDelegate: ListWheelChildBuilderDelegate(
-                              builder: (context, index) {
-                                if (index < 0 || index >= ages.length) {
-                                  return null;
-                                }
-                                final val = ages[index];
-                                return RotatedBox(
-                                  quarterTurns: 1,
-                                  child: Center(
-                                    child: Container(
-                                      width: 64,
-                                      height: 36,
-                                      alignment: Alignment.center,
-                                      decoration: BoxDecoration(
-                                        color: val == _age
-                                            ? Colors.teal
-                                            : Colors.grey.shade200,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        '$val',
-                                        style: GoogleFonts.poppins(
+                      Semantics(
+                        label: 'Select your age',
+                        hint: 'Scroll to select your age',
+                        child: SizedBox(
+                          height: 100,
+                          child: RotatedBox(
+                            quarterTurns: 3,
+                            child: ListWheelScrollView.useDelegate(
+                              controller: _ageCtrl,
+                              itemExtent: 48,
+                              diameterRatio: 1.6,
+                              physics: const FixedExtentScrollPhysics(),
+                              onSelectedItemChanged: (i) =>
+                                  setState(() => _age = ages[i]),
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                builder: (context, index) {
+                                  if (index < 0 || index >= ages.length) {
+                                    return null;
+                                  }
+                                  final val = ages[index];
+                                  return RotatedBox(
+                                    quarterTurns: 1,
+                                    child: Center(
+                                      child: Container(
+                                        width: 64,
+                                        height: 36,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
                                           color: val == _age
-                                              ? Colors.white
-                                              : Colors.black87,
-                                          fontWeight: val == _age
-                                              ? FontWeight.bold
-                                              : FontWeight.w600,
-                                          fontSize: 16,
+                                              ? AppColors.primaryCyan
+                                              : AppColors.surface,
+                                          borderRadius: BorderRadius.circular(
+                                            AppRadii.card,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '$val',
+                                          style: AppTypography.button.copyWith(
+                                            color: val == _age
+                                                ? AppColors.background
+                                                : AppColors.primaryText,
+                                            fontWeight: val == _age
+                                                ? FontWeight.w700
+                                                : FontWeight.w500,
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
-                              childCount: ages.length,
+                                  );
+                                },
+                                childCount: ages.length,
+                              ),
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 32),
                       SizedBox(
-                        height: 52,
+                        height: 60,
                         child: ElevatedButton(
                           onPressed: _saveAndNext,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.teal.shade300,
-                            foregroundColor: Colors.black,
+                            backgroundColor: AppColors.primaryCyan,
+                            foregroundColor: AppColors.background,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.button,
+                              ),
+                            ),
+                            elevation: 4,
+                            shadowColor: AppColors.primaryCyan.withValues(
+                              alpha: 0.3,
                             ),
                           ),
                           child: Text(
                             'Next',
-                            style: GoogleFonts.poppins(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                            style: AppTypography.buttonLarge.copyWith(
+                              color: AppColors.background,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
