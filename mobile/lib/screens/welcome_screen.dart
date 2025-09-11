@@ -158,15 +158,28 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             }
                           },
                     child: _isLoading
-                        ? SizedBox(
-                            height: 28,
-                            width: 28,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 3,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                AppColors.background,
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppColors.background,
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Sending OTP...',
+                                style: AppTypography.buttonLarge.copyWith(
+                                  color: AppColors.background,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
                           )
                         : Text(
                             'Continue',
@@ -223,17 +236,36 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           },
-                    icon: SvgPicture.asset(
-                      'assets/images/google_logo.svg',
-                      height: 24,
-                      width: 24,
-                    ),
-                    label: Text(
-                      'Continue with Google',
-                      style: AppTypography.button.copyWith(
-                        color: AppColors.primaryText,
-                      ),
-                    ),
+                    icon: _isLoading
+                        ? SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.primaryCyan,
+                              ),
+                            ),
+                          )
+                        : SvgPicture.asset(
+                            'assets/images/google_logo.svg',
+                            height: 24,
+                            width: 24,
+                          ),
+                    label: _isLoading
+                        ? Text(
+                            'Signing in...',
+                            style: AppTypography.button.copyWith(
+                              color: AppColors.primaryText,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          )
+                        : Text(
+                            'Continue with Google',
+                            style: AppTypography.button.copyWith(
+                              color: AppColors.primaryText,
+                            ),
+                          ),
                   ),
                 ),
                 const SizedBox(height: 80),

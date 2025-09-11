@@ -617,31 +617,10 @@ class _StickyMarketHeader extends SliverPersistentHeaderDelegate {
                       ),
                     );
                   },
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF172022),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.white12),
-                    ),
-                    child: Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 14,
-                          backgroundColor: Color(0xFF0CBBD6),
-                          child: Icon(
-                            Icons.person,
-                            size: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Ashish',
-                          style: TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ],
-                    ),
+                  child: const CircleAvatar(
+                    radius: 14,
+                    backgroundColor: Color(0xFF0CBBD6),
+                    child: Icon(Icons.person, size: 20, color: Colors.white),
                   ),
                 ),
                 const SizedBox(width: 12),
