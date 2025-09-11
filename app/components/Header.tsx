@@ -1,13 +1,25 @@
-import React from "react";
+'use client';
+import React, { useState, useEffect } from "react";
 import { FaBolt } from "react-icons/fa";
 
 const Header = () => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 0);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <header className="w-full flex items-center justify-between p-4 sm:p-6 sticky top-0">
-      <div className="flex items-center gap-2">
-        <img src="/vitkara_logo3.png" alt="Vitkara Logo" className=" h-[25px] sm:h-[50px] w-auto" />
+      <div className={`flex items-center gap-2 transition-all duration-300 ${isScrolled ? 'backdrop-blur-xs bg-cyan-400/20 rounded-md' : ''}`}>
+        <img src="/vitkara_logo3.png" alt="Vitkara Logo" className="h-[25px] sm:h-[50px] w-auto" />
       </div>
-      
+
     </header>
   );
 };
