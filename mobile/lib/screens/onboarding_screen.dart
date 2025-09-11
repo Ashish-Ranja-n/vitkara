@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../design_tokens.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onGetStarted;
@@ -34,13 +34,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Light background
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.dark,
+          value: SystemUiOverlayStyle.light,
           child: Column(
             children: [
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
               Expanded(
                 child: CarouselSlider.builder(
                   itemCount: _slides.length,
@@ -49,37 +49,51 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Placeholder for images
+                        // Enhanced placeholder for images with dark theme
                         Container(
-                          height: 220,
-                          width: 220,
+                          height: 240,
+                          width: 240,
                           decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.grey[200]!),
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(AppRadii.card),
+                            border: Border.all(
+                              color: AppColors.primaryCyan.withValues(
+                                alpha: 0.3,
+                              ),
+                              width: 2,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppColors.shadow,
+                                blurRadius: AppElevation.blur,
+                                offset: Offset(0, AppElevation.offsetY),
+                              ),
+                            ],
                           ),
                           child: Icon(
                             Icons.store,
-                            size: 100,
-                            color: Colors.teal.shade400,
+                            size: 120,
+                            color: AppColors.primaryCyan,
                           ),
                         ),
-                        const SizedBox(height: 32),
-                        Text(
-                          slide['title']!,
-                          style: GoogleFonts.poppins(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[900],
+                        const SizedBox(height: 40),
+                        Semantics(
+                          label:
+                              'Onboarding slide ${index + 1} of ${_slides.length}',
+                          child: Text(
+                            slide['title']!,
+                            style: AppTypography.heroTitle.copyWith(
+                              fontSize: 28,
+                              color: AppColors.primaryText,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         Text(
                           slide['desc']!,
-                          style: GoogleFonts.poppins(
-                            fontSize: 16,
-                            color: Colors.grey[600],
+                          style: AppTypography.bodyLarge.copyWith(
+                            color: AppColors.secondaryText,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -87,7 +101,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     );
                   },
                   options: CarouselOptions(
-                    height: 400,
+                    height: 500,
                     viewportFraction: 1.0,
                     enableInfiniteScroll: false,
                     enlargeCenterPage: false,
@@ -103,49 +117,49 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _slides.asMap().entries.map((entry) {
                   return Container(
-                    width: 10.0,
-                    height: 10.0,
+                    width: 12.0,
+                    height: 12.0,
                     margin: const EdgeInsets.symmetric(
-                      vertical: 8.0,
-                      horizontal: 4.0,
+                      vertical: 12.0,
+                      horizontal: 6.0,
                     ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _current == entry.key
-                          ? Colors.teal.shade200
-                          : Colors.grey[700],
+                          ? AppColors.primaryCyan
+                          : AppColors.mutedText.withValues(alpha: 0.3),
                     ),
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 40),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 56,
+                  height: 60,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade300,
-                      foregroundColor: Colors.black,
+                      backgroundColor: AppColors.primaryCyan,
+                      foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
-                      elevation: 2,
+                      elevation: 4,
+                      shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
                     ),
                     onPressed: widget.onGetStarted,
                     child: Text(
                       'Get Started',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black,
+                      style: AppTypography.buttonLarge.copyWith(
+                        color: AppColors.background,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 60),
             ],
           ),
         ),

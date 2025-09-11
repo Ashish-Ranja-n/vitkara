@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import '../design_tokens.dart';
 import '../services/auth_service.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -21,92 +21,116 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: AnnotatedRegion<SystemUiOverlayStyle>(
-          value: SystemUiOverlayStyle.dark,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+          value: SystemUiOverlayStyle.light,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.edge),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                const SizedBox(height: 80),
                 Text(
-                  'Welcome to MBDIM',
-                  style: GoogleFonts.poppins(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[900],
+                  'Welcome to Vitkara',
+                  style: AppTypography.heroTitle.copyWith(
+                    fontSize: 36,
+                    color: AppColors.primaryText,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Text(
                   'Enter your mobile number or email to continue',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.secondaryText,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 60),
                 Form(
                   key: _formKey,
-                  child: TextFormField(
-                    controller: _controller,
-                    keyboardType: TextInputType.emailAddress,
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: Colors.grey[900],
-                    ),
-                    decoration: InputDecoration(
-                      hintText: 'Mobile number or Email',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      fillColor: Colors.grey[100],
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                  child: Semantics(
+                    label: 'Enter your mobile number or email address',
+                    hint: 'Type your phone number or email to continue',
+                    child: TextFormField(
+                      controller: _controller,
+                      keyboardType: TextInputType.emailAddress,
+                      style: AppTypography.bodyLarge.copyWith(
+                        color: AppColors.primaryText,
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your mobile number or email';
-                      }
+                      decoration: InputDecoration(
+                        hintText: 'Mobile number or Email',
+                        hintStyle: AppTypography.body.copyWith(
+                          color: AppColors.mutedText,
+                        ),
+                        fillColor: AppColors.inputBackground,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan,
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 18,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter your mobile number or email';
+                        }
 
-                      // Email validation
-                      if (value.contains('@')) {
-                        final emailRegex = RegExp(
-                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                        );
-                        if (!emailRegex.hasMatch(value)) {
-                          return 'Please enter a valid email address';
+                        // Email validation
+                        if (value.contains('@')) {
+                          final emailRegex = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
+                          if (!emailRegex.hasMatch(value)) {
+                            return 'Please enter a valid email address';
+                          }
                         }
-                      }
-                      // Phone validation (Indian format)
-                      else {
-                        final phoneRegex = RegExp(
-                          r'^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$',
-                        );
-                        if (!phoneRegex.hasMatch(value)) {
-                          return 'Please enter a valid Indian mobile number';
+                        // Phone validation (Indian format)
+                        else {
+                          final phoneRegex = RegExp(
+                            r'^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$',
+                          );
+                          if (!phoneRegex.hasMatch(value)) {
+                            return 'Please enter a valid Indian mobile number';
+                          }
                         }
-                      }
-                      return null;
-                    },
+                        return null;
+                      },
+                    ),
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 40),
                 SizedBox(
-                  height: 56,
+                  height: 60,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade300,
-                      foregroundColor: Colors.black,
+                      backgroundColor: AppColors.primaryCyan,
+                      foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
-                      elevation: 2,
+                      elevation: 4,
+                      shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
                     ),
                     onPressed: _isLoading
                         ? null
@@ -122,7 +146,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                 setState(() => _isLoading = false);
                                 if (result.error != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(result.error!)),
+                                    SnackBar(
+                                      content: Text(result.error!),
+                                      backgroundColor: AppColors.warning,
+                                    ),
                                   );
                                 } else {
                                   widget.onContinue(result);
@@ -131,45 +158,45 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             }
                           },
                     child: _isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
+                        ? SizedBox(
+                            height: 28,
+                            width: 28,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: 3,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.black,
+                                AppColors.background,
                               ),
                             ),
                           )
                         : Text(
                             'Continue',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                            style: AppTypography.buttonLarge.copyWith(
+                              color: AppColors.background,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 Text(
                   'or',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.grey[600],
+                  style: AppTypography.body.copyWith(
+                    color: AppColors.mutedText,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 24),
                 SizedBox(
-                  height: 56,
+                  height: 60,
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.grey[800],
-                      backgroundColor: Colors.grey[100],
-                      side: BorderSide(color: Colors.grey[300]!),
+                      foregroundColor: AppColors.primaryText,
+                      backgroundColor: AppColors.surface,
+                      side: BorderSide(
+                        color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
                     ),
                     onPressed: _isLoading
@@ -184,7 +211,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               setState(() => _isLoading = false);
                               if (result.error != null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(result.error!)),
+                                  SnackBar(
+                                    content: Text(result.error!),
+                                    backgroundColor: AppColors.warning,
+                                  ),
                                 );
                               } else {
                                 // Pass the result to parent widget which will handle navigation
@@ -195,17 +225,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           },
                     icon: SvgPicture.asset(
                       'assets/images/google_logo.svg',
-                      height: 40,
+                      height: 24,
+                      width: 24,
                     ),
                     label: Text(
                       'Continue with Google',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
+                      style: AppTypography.button.copyWith(
+                        color: AppColors.primaryText,
                       ),
                     ),
                   ),
                 ),
+                const SizedBox(height: 80),
               ],
             ),
           ),

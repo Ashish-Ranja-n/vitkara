@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import '../design_tokens.dart';
 import '../providers/auth_provider.dart';
 import '../services/auth_service.dart';
 
@@ -26,75 +26,103 @@ class _OtpScreenState extends State<OtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF071014),
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: AnnotatedRegion<SystemUiOverlayStyle>(
           value: SystemUiOverlayStyle.light,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.edge),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
                   'OTP Verification',
-                  style: GoogleFonts.poppins(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                  style: AppTypography.title.copyWith(
+                    color: AppColors.primaryText,
+                    fontSize: 32,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 Text(
                   'Enter the 4–6 digit code sent to you',
-                  style: GoogleFonts.poppins(
-                    fontSize: 16,
-                    color: Colors.white70,
+                  style: AppTypography.bodyLarge.copyWith(
+                    color: AppColors.secondaryText,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 60),
                 Form(
                   key: _formKey,
-                  child: TextFormField(
-                    controller: _otpController,
-                    keyboardType: TextInputType.number,
-                    maxLength: 6,
-                    style: GoogleFonts.poppins(
-                      fontSize: 20,
-                      letterSpacing: 16,
-                      color: Colors.white,
-                    ),
-                    textAlign: TextAlign.center,
-                    decoration: InputDecoration(
-                      counterText: '',
-                      hintText: '••••',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  child: Semantics(
+                    label: 'Enter your 4 to 6 digit OTP code',
+                    hint: 'Type the verification code sent to your device',
+                    child: TextFormField(
+                      controller: _otpController,
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      style: AppTypography.title.copyWith(
+                        fontSize: 24,
+                        letterSpacing: 20,
+                        color: AppColors.primaryText,
                       ),
-                      filled: true,
-                      fillColor: const Color(0xFF0F1A1C),
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(
+                        counterText: '',
+                        hintText: '••••••',
+                        hintStyle: AppTypography.title.copyWith(
+                          fontSize: 24,
+                          letterSpacing: 20,
+                          color: AppColors.mutedText,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(AppRadii.card),
+                          borderSide: BorderSide(
+                            color: AppColors.primaryCyan,
+                            width: 2,
+                          ),
+                        ),
+                        filled: true,
+                        fillColor: AppColors.inputBackground,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 20,
+                        ),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.length < 4) {
+                          return 'Enter a valid OTP';
+                        }
+                        return null;
+                      },
                     ),
-                    validator: (value) {
-                      if (value == null || value.length < 4) {
-                        return 'Enter a valid OTP';
-                      }
-                      return null;
-                    },
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 50),
                 SizedBox(
-                  height: 56,
+                  height: 60,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal.shade300,
-                      foregroundColor: Colors.black,
+                      backgroundColor: AppColors.primaryCyan,
+                      foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
-                      elevation: 2,
+                      elevation: 4,
+                      shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
                     ),
                     onPressed: _isLoading
                         ? null
@@ -120,7 +148,10 @@ class _OtpScreenState extends State<OtpScreen> {
                               } catch (e) {
                                 if (mounted) {
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(e.toString())),
+                                    SnackBar(
+                                      content: Text(e.toString()),
+                                      backgroundColor: AppColors.warning,
+                                    ),
                                   );
                                 }
                               } finally {
@@ -131,22 +162,21 @@ class _OtpScreenState extends State<OtpScreen> {
                             }
                           },
                     child: _isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
+                        ? SizedBox(
+                            height: 28,
+                            width: 28,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: 3,
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                Colors.black,
+                                AppColors.background,
                               ),
                             ),
                           )
                         : Text(
                             'Verify',
-                            style: GoogleFonts.poppins(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black,
+                            style: AppTypography.buttonLarge.copyWith(
+                              color: AppColors.background,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                   ),
