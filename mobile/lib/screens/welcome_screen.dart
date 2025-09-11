@@ -33,23 +33,48 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 80),
+                // Logo section with Vitkara logo
+                Center(
+                  child: Container(
+                    height: 160,
+                    width: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.surface,
+                      border: Border.all(
+                        color: AppColors.primaryCyan.withOpacity(0.7),
+                        width: 2,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Image.asset(
+                        'assets/images/vitkara_logo.jpg',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
                 Text(
                   'Welcome to Vitkara',
                   style: AppTypography.heroTitle.copyWith(
-                    fontSize: 36,
+                    fontSize: 32,
                     color: AppColors.primaryText,
+                    height: 1.2,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 12),
                 Text(
-                  'Enter your mobile number or email to continue',
+                  'An Investment Marketplace',
                   style: AppTypography.bodyLarge.copyWith(
                     color: AppColors.secondaryText,
+                    height: 1.4,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 60),
+                const SizedBox(height: 48),
                 Form(
                   key: _formKey,
                   child: Semantics(
@@ -66,30 +91,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         hintStyle: AppTypography.body.copyWith(
                           color: AppColors.mutedText,
                         ),
-                        fillColor: AppColors.inputBackground,
+                        fillColor: AppColors.surface,
                         filled: true,
+                        prefixIcon: Icon(
+                          Icons.phone_android_outlined,
+                          color: AppColors.primaryCyan,
+                          size: 24,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppRadii.card),
-                          borderSide: BorderSide(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
-                          ),
+                          borderSide: BorderSide.none,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppRadii.card),
-                          borderSide: BorderSide(
-                            color: AppColors.primaryCyan.withValues(alpha: 0.3),
-                          ),
+                          borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(AppRadii.card),
                           borderSide: BorderSide(
                             color: AppColors.primaryCyan,
-                            width: 2,
+                            width: 1.5,
                           ),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20,
-                          vertical: 18,
+                          vertical: 16,
                         ),
                       ),
                       validator: (value) {
@@ -120,18 +146,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 32),
                 SizedBox(
-                  height: 60,
+                  height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryCyan,
+                      backgroundColor: const Color.fromARGB(227, 0, 213, 255),
                       foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
-                      elevation: 4,
-                      shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
                     onPressed: _isContinueLoading
                         ? null
@@ -163,19 +189,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               SizedBox(
-                                height: 20,
-                                width: 20,
+                                height: 18,
+                                width: 18,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
+                                  strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     AppColors.background,
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 10),
                               Text(
                                 'Sending OTP...',
-                                style: AppTypography.buttonLarge.copyWith(
+                                style: AppTypography.button.copyWith(
                                   color: AppColors.background,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -186,28 +212,48 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             'Continue',
                             style: AppTypography.buttonLarge.copyWith(
                               color: AppColors.background,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                Text(
-                  'or',
-                  style: AppTypography.body.copyWith(
-                    color: AppColors.mutedText,
-                  ),
-                  textAlign: TextAlign.center,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: AppColors.mutedText.withOpacity(0.2),
+                        thickness: 1,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'or',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.mutedText,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: AppColors.mutedText.withOpacity(0.2),
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 24),
                 SizedBox(
-                  height: 60,
+                  height: 56,
                   child: OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppColors.primaryText,
                       backgroundColor: AppColors.surface,
                       side: BorderSide(
-                        color: AppColors.primaryCyan.withValues(alpha: 0.3),
+                        color: AppColors.mutedText.withOpacity(0.2),
+                        width: 1,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.button),
@@ -239,10 +285,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           },
                     icon: _isGoogleLoading
                         ? SizedBox(
-                            height: 20,
-                            width: 20,
+                            height: 18,
+                            width: 18,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
+                              strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation<Color>(
                                 AppColors.primaryCyan,
                               ),
@@ -250,8 +296,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                           )
                         : SvgPicture.asset(
                             'assets/images/google_logo.svg',
-                            height: 24,
-                            width: 24,
+                            height: 20,
+                            width: 20,
                           ),
                     label: _isGoogleLoading
                         ? Text(
@@ -265,6 +311,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             'Continue with Google',
                             style: AppTypography.button.copyWith(
                               color: AppColors.primaryText,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                   ),

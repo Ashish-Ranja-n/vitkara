@@ -13,19 +13,22 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   int _current = 0;
-  final List<Map<String, String>> _slides = [
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
+
+  final List<Map<String, dynamic>> _slides = [
     {
-      'image': 'assets/onboard1.png',
+      'icon': Icons.store_outlined,
       'title': 'Invest in local shops',
       'desc': 'Empower small businesses and grow your wealth.',
     },
     {
-      'image': 'assets/onboard2.png',
+      'icon': Icons.trending_up_outlined,
       'title': 'Earn daily returns',
       'desc': 'Get rewarded every day for your investments.',
     },
     {
-      'image': 'assets/onboard3.png',
+      'icon': Icons.people_outline,
       'title': 'Support community growth',
       'desc': 'Be a part of the local economic revolution.',
     },
@@ -40,68 +43,81 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           value: SystemUiOverlayStyle.light,
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              // Skip Button
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextButton(
+                    onPressed: widget.onGetStarted,
+                    child: Text(
+                      'Skip',
+                      style: AppTypography.button.copyWith(
+                        color: AppColors.primaryCyan,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               Expanded(
                 child: CarouselSlider.builder(
+                  carouselController: _carouselController,
                   itemCount: _slides.length,
                   itemBuilder: (context, index, realIdx) {
                     final slide = _slides[index];
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Enhanced placeholder for images with dark theme
+                        // Clean icon container
                         Container(
-                          height: 240,
-                          width: 240,
+                          height: 160,
+                          width: 160,
                           decoration: BoxDecoration(
-                            color: AppColors.surface,
-                            borderRadius: BorderRadius.circular(AppRadii.card),
+                            color: AppColors.primaryCyan.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(80),
                             border: Border.all(
-                              color: AppColors.primaryCyan.withValues(
-                                alpha: 0.3,
-                              ),
-                              width: 2,
+                              color: AppColors.primaryCyan.withOpacity(0.2),
+                              width: 1,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.shadow,
-                                blurRadius: AppElevation.blur,
-                                offset: Offset(0, AppElevation.offsetY),
-                              ),
-                            ],
                           ),
                           child: Icon(
-                            Icons.store,
-                            size: 120,
+                            slide['icon'],
+                            size: 80,
                             color: AppColors.primaryCyan,
                           ),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 48),
                         Semantics(
                           label:
                               'Onboarding slide ${index + 1} of ${_slides.length}',
                           child: Text(
-                            slide['title']!,
+                            slide['title'],
                             style: AppTypography.heroTitle.copyWith(
                               fontSize: 28,
                               color: AppColors.primaryText,
+                              height: 1.2,
                             ),
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          slide['desc']!,
-                          style: AppTypography.bodyLarge.copyWith(
-                            color: AppColors.secondaryText,
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Text(
+                            slide['desc'],
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: AppColors.secondaryText,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
                         ),
                       ],
                     );
                   },
                   options: CarouselOptions(
-                    height: 500,
+                    height: MediaQuery.of(context).size.height * 0.65,
                     viewportFraction: 1.0,
                     enableInfiniteScroll: false,
                     enlargeCenterPage: false,
@@ -113,53 +129,56 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
               ),
+              // Clean Indicators
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _slides.asMap().entries.map((entry) {
                   return Container(
-                    width: 12.0,
-                    height: 12.0,
+                    width: 8.0,
+                    height: 8.0,
                     margin: const EdgeInsets.symmetric(
-                      vertical: 12.0,
-                      horizontal: 6.0,
+                      vertical: 16.0,
+                      horizontal: 4.0,
                     ),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _current == entry.key
                           ? AppColors.primaryCyan
-                          : AppColors.mutedText.withValues(alpha: 0.3),
+                          : AppColors.mutedText.withOpacity(0.3),
                     ),
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32.0),
                 child: SizedBox(
                   width: double.infinity,
-                  height: 60,
+                  height: 56,
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryCyan,
+                      backgroundColor: const Color.fromARGB(228, 0, 213, 255),
                       foregroundColor: AppColors.background,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
-                      elevation: 4,
-                      shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
+                      elevation: 0,
+                      shadowColor: Colors.transparent,
                     ),
-                    onPressed: widget.onGetStarted,
+                    onPressed: _current == _slides.length - 1
+                        ? widget.onGetStarted
+                        : () => _carouselController.animateToPage(_current + 1),
                     child: Text(
-                      'Get Started',
+                      _current == _slides.length - 1 ? 'Get Started' : 'Next',
                       style: AppTypography.buttonLarge.copyWith(
                         color: AppColors.background,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 48),
             ],
           ),
         ),
