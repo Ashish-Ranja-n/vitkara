@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../design_tokens.dart';
+import '../services/investor_service.dart';
 
 class ProfileInfoScreen extends StatefulWidget {
   final VoidCallback onNext;
@@ -21,6 +22,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
   void initState() {
     super.initState();
     _ageCtrl = FixedExtentScrollController(initialItem: _age - 18);
+    _loadProfile();
   }
 
   @override
@@ -30,17 +32,47 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
     super.dispose();
   }
 
+  Future<void> _loadProfile() async {
+    final investorService = InvestorService();
+    final profile = await investorService.getProfile();
+
+    if (profile != null) {
+      setState(() {
+        _nameCtrl.text = profile['name'] ?? '';
+        _age = profile['age'] ?? 30;
+        _ageCtrl = FixedExtentScrollController(initialItem: _age - 18);
+      });
+    }
+  }
+
   Future<void> _saveAndNext() async {
     if (!_formKey.currentState!.validate()) return;
     FocusScope.of(context).unfocus();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('profile_name', _nameCtrl.text.trim());
-    await prefs.setInt('profile_age', _age);
-    // save dummy location for now
-    await prefs.setString('profile_location', 'Bengaluru, India');
-    // mark startup flow completed (we no longer collect experience)
-    await prefs.setBool('flow_completed', true);
-    widget.onNext();
+
+    final investorService = InvestorService();
+    final success = await investorService.updateProfile(
+      name: _nameCtrl.text.trim(),
+      age: _age,
+      location: 'Bengaluru, India',
+      city: 'Delhi', // Default city
+    );
+
+    if (success != null) {
+      final prefs = await SharedPreferences.getInstance();
+      // Still save to local prefs for offline access
+      await prefs.setString('profile_name', _nameCtrl.text.trim());
+      await prefs.setInt('profile_age', _age);
+      await prefs.setString('profile_location', 'Bengaluru, India');
+      await prefs.setBool('flow_completed', true);
+      widget.onNext();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save profile. Please try again.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override

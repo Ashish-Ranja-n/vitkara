@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum UserRole { investor, shop }
-
 class InvestorProfilePage extends StatefulWidget {
   const InvestorProfilePage({super.key});
 
@@ -14,7 +12,6 @@ class _ProfilePageState extends State<InvestorProfilePage> {
   bool _editingName = false;
   final TextEditingController _nameController = TextEditingController();
   String _name = 'John Doe';
-  UserRole _role = UserRole.investor;
   final bool _verified = true;
   final String _city = 'Delhi';
   String _defaultDashboard = 'Open Market';
@@ -31,8 +28,6 @@ class _ProfilePageState extends State<InvestorProfilePage> {
       _defaultDashboard = prefs.getString('default_dashboard') ?? 'Open Market';
       _name = prefs.getString('profile_name') ?? _name;
       _nameController.text = _name;
-      final role = prefs.getString('profile_role');
-      if (role == 'shop') _role = UserRole.shop;
     });
   }
 
@@ -205,15 +200,13 @@ class _ProfilePageState extends State<InvestorProfilePage> {
                       child: Row(
                         children: [
                           Icon(
-                            _role == UserRole.investor
-                                ? Icons.show_chart
-                                : Icons.store,
+                            Icons.show_chart,
                             color: const Color(0xFF0F9D58),
                             size: 16,
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            _role == UserRole.investor ? 'Investor' : 'Shop',
+                            'Investor',
                             style: const TextStyle(color: Color(0xFFB7C2C8)),
                           ),
                           const SizedBox(width: 8),
@@ -258,17 +251,11 @@ class _ProfilePageState extends State<InvestorProfilePage> {
   }
 
   Widget _quickStats() {
-    final cards = _role == UserRole.investor
-        ? [
-            {'title': 'Portfolio', 'value': '₹1.2L'},
-            {'title': 'Active Tickets', 'value': '6'},
-            {'title': 'Daily Payouts', 'value': '₹1,800'},
-          ]
-        : [
-            {'title': 'Active Requests', 'value': '3'},
-            {'title': 'Raised', 'value': '₹42K'},
-            {'title': 'Avg UPI/day', 'value': '₹9,800'},
-          ];
+    final cards = [
+      {'title': 'Portfolio', 'value': '₹1.2L'},
+      {'title': 'Active Tickets', 'value': '6'},
+      {'title': 'Daily Payouts', 'value': '₹1,800'},
+    ];
 
     return SizedBox(
       height: 108,
@@ -388,17 +375,11 @@ class _ProfilePageState extends State<InvestorProfilePage> {
               leading: Icons.location_on_outlined,
             ),
             _sectionTile(
-              'Role & Default dashboard',
+              'Default dashboard',
               subtitle: _defaultDashboard,
               onTap: () => _showDefaultDashboardChooser(),
               leading: Icons.sync_alt,
             ),
-            if (_role == UserRole.shop)
-              _sectionTile(
-                'Business info',
-                onTap: () {},
-                leading: Icons.storefront_outlined,
-              ),
           ],
         ),
 
@@ -506,12 +487,6 @@ class _ProfilePageState extends State<InvestorProfilePage> {
               onTap: () {},
               leading: Icons.insights_outlined,
             ),
-            if (_role == UserRole.shop)
-              _sectionTile(
-                'My Fund Requests',
-                onTap: () {},
-                leading: Icons.request_page,
-              ),
             _sectionTile(
               'Repayment Calendar',
               onTap: () {},

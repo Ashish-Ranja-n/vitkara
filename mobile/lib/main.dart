@@ -32,9 +32,35 @@ class MbdimApp extends StatelessWidget {
         ),
         home: Consumer<AuthProvider>(
           builder: (context, auth, _) {
+            // Show loading while checking auth state
+            if (auth.state.isLoading) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
             if (auth.state.isAuthenticated && !auth.state.isNewUser) {
               return const InvestorDashboard();
             }
+
+            // If authenticated but new user, start from profile completion
+            if (auth.state.isAuthenticated && auth.state.isNewUser) {
+              return ProfileInfoScreen(
+                onNext: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setBool('flow_completed', true);
+                  auth.markFlowCompleted();
+                  if (context.mounted) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (_) => const InvestorDashboard(),
+                      ),
+                    );
+                  }
+                },
+              );
+            }
+
             return const MbdimFlow();
           },
         ),
@@ -126,6 +152,8 @@ class _MbdimFlowState extends State<MbdimFlow> {
           onNext: () async {
             final prefs = await SharedPreferences.getInstance();
             await prefs.setBool('flow_completed', true);
+            final auth = Provider.of<AuthProvider>(context, listen: false);
+            auth.markFlowCompleted();
             if (mounted) {
               setState(() => _step = 4);
             }
