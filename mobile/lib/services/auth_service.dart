@@ -32,14 +32,7 @@ class AuthService {
         '425965460296-bkm1bphn5di9nng1fudagu9madge6k40.apps.googleusercontent.com',
   );
 
-  // Store tokens
-  Future<void> _saveTokens(String accessToken, String refreshToken) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('access_token', accessToken);
-    await prefs.setString('refresh_token', refreshToken);
-  }
-
-  // Used by static Google sign-in to store a single token (backend may return a single JWT)
+  // Store token (backend uses single JWT token)
   static Future<void> saveToken(String? token) async {
     if (token == null) return;
     final prefs = await SharedPreferences.getInstance();
@@ -93,12 +86,20 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        await _saveTokens(data['accessToken'], data['refreshToken']);
+        // Backend returns { token, investor, isNew } but frontend expects { accessToken, refreshToken, user, isNew }
+        await saveToken(data['token']);
+        await saveUserData(data['investor']);
+
+        // For existing users, mark flow as completed
+        if (!(data['isNew'] ?? false)) {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('flow_completed', true);
+        }
 
         return AuthResult(
-          accessToken: data['accessToken'],
-          refreshToken: data['refreshToken'],
-          user: data['user'],
+          accessToken: data['token'],
+          refreshToken: data['token'], // Use same token for both for now
+          user: data['investor'],
           isNew: data['isNew'] ?? false,
         );
       } else {
@@ -163,6 +164,12 @@ class AuthService {
           await saveToken(data['token']);
           await saveUserData(data['user']);
 
+          // For existing users, mark flow as completed
+          if (!(data['isNew'] ?? false)) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setBool('flow_completed', true);
+          }
+
           return AuthResult(
             accessToken: data['token'],
             user: data['user'],
@@ -198,6 +205,7 @@ class AuthService {
     await prefs.remove('access_token');
     await prefs.remove('refresh_token');
     await prefs.remove('user');
+    await prefs.remove('flow_completed');
     await _googleSignIn.signOut();
   }
 }

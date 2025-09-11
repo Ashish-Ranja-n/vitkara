@@ -42,7 +42,6 @@ class InvestorService {
     String? avatar,
     int? age,
     String? location,
-    String? city,
     String? defaultDashboard,
   }) async {
     try {
@@ -58,7 +57,6 @@ class InvestorService {
       if (avatar != null) body['avatar'] = avatar;
       if (age != null) body['age'] = age;
       if (location != null) body['location'] = location;
-      if (city != null) body['city'] = city;
       if (defaultDashboard != null) body['defaultDashboard'] = defaultDashboard;
 
       final response = await http.put(

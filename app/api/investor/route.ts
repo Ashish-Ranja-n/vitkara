@@ -38,7 +38,6 @@ export async function GET(request: NextRequest) {
     age: investor.age,
     location: investor.location,
     verified: investor.verified,
-    city: investor.city,
     defaultDashboard: investor.defaultDashboard,
     createdAt: investor.createdAt,
   });
@@ -57,7 +56,6 @@ export async function PUT(request: NextRequest) {
   if (avatar !== undefined) investor.avatar = avatar;
   if (age !== undefined) investor.age = age;
   if (location !== undefined) investor.location = location;
-  if (city !== undefined) investor.city = city;
   if (defaultDashboard !== undefined) investor.defaultDashboard = defaultDashboard;
 
   await investor.save();
@@ -70,7 +68,6 @@ export async function PUT(request: NextRequest) {
     age: investor.age,
     location: investor.location,
     verified: investor.verified,
-    city: investor.city,
     defaultDashboard: investor.defaultDashboard,
     createdAt: investor.createdAt,
   });

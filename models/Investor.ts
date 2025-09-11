@@ -8,7 +8,8 @@ export interface IInvestor extends Document {
   age?: number;
   location?: string;
   verified: boolean;
-  city: string;
+  totalInvestment: number;
+  walletBalance: number;
   defaultDashboard: string;
   createdAt: Date;
 }
@@ -41,9 +42,13 @@ const InvestorSchema: Schema = new Schema({
     type: Boolean,
     default: false,
   },
-  city: {
-    type: String,
-    default: '',
+  totalInvestment: {
+    type: Number,
+    default: 0,
+  },
+  walletBalance: {
+    type: Number,
+    default: 0,
   },
   defaultDashboard: {
     type: String,

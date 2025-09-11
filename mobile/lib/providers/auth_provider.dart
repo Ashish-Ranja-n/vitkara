@@ -56,11 +56,10 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _loadSavedAuth() async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
-    final refreshToken = prefs.getString('refresh_token');
     final userString = prefs.getString('user');
     final flowCompleted = prefs.getBool('flow_completed') ?? false;
 
-    if (accessToken != null && refreshToken != null) {
+    if (accessToken != null) {
       Map<String, dynamic>? user;
       if (userString != null) {
         try {
@@ -72,7 +71,7 @@ class AuthProvider extends ChangeNotifier {
 
       _state = _state.copyWith(
         accessToken: accessToken,
-        refreshToken: refreshToken,
+        refreshToken: accessToken, // Use same token for both
         user: user,
         isAuthenticated: true,
         isNewUser: !flowCompleted, // If flow is completed, user is not new
