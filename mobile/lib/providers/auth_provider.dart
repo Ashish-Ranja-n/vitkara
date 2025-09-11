@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../services/auth_service.dart';
 
 class AuthState {
@@ -56,27 +57,19 @@ class AuthProvider extends ChangeNotifier {
   Future<void> _loadSavedAuth() async {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
-    final userString = prefs.getString('user');
     final flowCompleted = prefs.getBool('flow_completed') ?? false;
 
     if (accessToken != null) {
-      Map<String, dynamic>? user;
-      if (userString != null) {
-        try {
-          user = json.decode(userString);
-        } catch (e) {
-          // If parsing fails, user will be null
-        }
-      }
-
       _state = _state.copyWith(
         accessToken: accessToken,
         refreshToken: accessToken, // Use same token for both
-        user: user,
         isAuthenticated: true,
         isNewUser: !flowCompleted, // If flow is completed, user is not new
         isLoading: false,
       );
+
+      // Fetch fresh investor data on app launch
+      await _fetchInvestorData();
     } else {
       _state = _state.copyWith(isLoading: false);
     }
@@ -109,6 +102,9 @@ class AuthProvider extends ChangeNotifier {
         pendingId: null,
       );
       notifyListeners();
+
+      // Fetch complete investor data after successful authentication
+      await _fetchInvestorData();
     } else {
       throw Exception(result.error ?? 'Failed to verify OTP');
     }
@@ -144,13 +140,74 @@ class AuthProvider extends ChangeNotifier {
         isNewUser: result.isNew,
       );
       notifyListeners();
+
+      // Fetch complete investor data after successful authentication
+      await _fetchInvestorData();
     } else {
       throw Exception(result.error ?? 'Failed to sign in with Google');
     }
   }
 
+  Future<void> _fetchInvestorData() async {
+    if (_state.accessToken == null) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://vitkara.com/api/investor'),
+        headers: {
+          'Authorization': 'Bearer ${_state.accessToken}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final investorData = json.decode(response.body);
+        _state = _state.copyWith(user: investorData);
+        notifyListeners();
+
+        // Cache the complete data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('investor_data', json.encode(investorData));
+      }
+    } catch (e) {
+      // Handle error silently for now
+    }
+  }
+
+  // Refresh investor data (for updating financial data)
+  Future<void> refreshInvestorData() async {
+    if (_state.accessToken == null) return;
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://vitkara.com/api/investor'),
+        headers: {
+          'Authorization': 'Bearer ${_state.accessToken}',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final investorData = json.decode(response.body);
+        _state = _state.copyWith(user: investorData);
+        notifyListeners();
+
+        // Update cached data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('investor_data', json.encode(investorData));
+      }
+    } catch (e) {
+      // Handle error silently for refresh
+    }
+  }
+
   Future<bool> signOut() async {
     final success = await _authService.signOut();
+
+    // Clear cached investor data
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('investor_data');
+
     _state = AuthState(isLoading: false);
     notifyListeners();
     return success;

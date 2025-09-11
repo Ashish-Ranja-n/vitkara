@@ -76,7 +76,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
       final success = await investorService.updateProfile(
         name: _nameCtrl.text.trim(),
         age: _age,
-        location: 'Bengaluru, India',
+        location: 'Sitamarhi',
       );
 
       if (success != null) {
@@ -84,7 +84,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
         // Still save to local prefs for offline access
         await prefs.setString('profile_name', _nameCtrl.text.trim());
         await prefs.setInt('profile_age', _age);
-        await prefs.setString('profile_location', 'Bengaluru, India');
+        await prefs.setString('profile_location', 'Sitamarhi');
         await prefs.setBool('flow_completed', true);
         widget.onNext();
       } else {
@@ -314,7 +314,7 @@ class _ProfileInfoScreenState extends State<ProfileInfoScreen> {
                                   const SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
-                                      'Bengaluru, India',
+                                      'Sitamarhi',
                                       style: AppTypography.body.copyWith(
                                         color: AppColors.secondaryText,
                                       ),

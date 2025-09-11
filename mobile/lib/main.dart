@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'screens/onboarding_screen.dart';
@@ -23,7 +22,7 @@ class MbdimApp extends StatelessWidget {
       create: (_) => AuthProvider(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'MBDIM',
+        title: 'Vitkara',
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
@@ -46,9 +45,7 @@ class MbdimApp extends StatelessWidget {
             // If authenticated but new user, start from profile completion
             if (auth.state.isAuthenticated && auth.state.isNewUser) {
               return ProfileInfoScreen(
-                onNext: () async {
-                  final prefs = await SharedPreferences.getInstance();
-                  await prefs.setBool('flow_completed', true);
+                onNext: () {
                   auth.markFlowCompleted();
                   if (context.mounted) {
                     Navigator.of(context).pushReplacement(
@@ -149,9 +146,7 @@ class _MbdimFlowState extends State<MbdimFlow> {
         );
       case 3:
         return ProfileInfoScreen(
-          onNext: () async {
-            final prefs = await SharedPreferences.getInstance();
-            await prefs.setBool('flow_completed', true);
+          onNext: () {
             final auth = Provider.of<AuthProvider>(context, listen: false);
             auth.markFlowCompleted();
             if (mounted) {
