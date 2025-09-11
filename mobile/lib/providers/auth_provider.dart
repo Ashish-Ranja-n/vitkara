@@ -58,22 +58,35 @@ class AuthProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final accessToken = prefs.getString('access_token');
     final flowCompleted = prefs.getBool('flow_completed') ?? false;
+    final cachedInvestorData = prefs.getString('investor_data');
 
     if (accessToken != null) {
+      // Load cached user data immediately to avoid loading screen
+      Map<String, dynamic>? userData;
+      if (cachedInvestorData != null) {
+        try {
+          userData = json.decode(cachedInvestorData);
+        } catch (e) {
+          // If cached data is corrupted, ignore it
+        }
+      }
+
       _state = _state.copyWith(
         accessToken: accessToken,
         refreshToken: accessToken, // Use same token for both
+        user: userData,
         isAuthenticated: true,
         isNewUser: !flowCompleted, // If flow is completed, user is not new
-        isLoading: false,
+        isLoading: false, // Set loading to false immediately with cached data
       );
+      notifyListeners();
 
-      // Fetch fresh investor data on app launch
-      await _fetchInvestorData();
+      // Fetch fresh investor data in background without blocking UI
+      _fetchInvestorData();
     } else {
       _state = _state.copyWith(isLoading: false);
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   Future<void> startAuth(String contact) async {
