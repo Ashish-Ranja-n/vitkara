@@ -260,187 +260,170 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
             ),
             // content
             SafeArea(
-              child: RefreshIndicator(
-                color: AppColors.accentGreen,
-                backgroundColor: AppColors.cardElevated,
-                onRefresh: _loadMockData,
-                child: CustomScrollView(
-                  slivers: [
-                    // Sticky header
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _StickyMarketHeader(),
+              child: Column(
+                children: [
+                  // Fixed header
+                  _StickyMarketHeader().build(context, 0, false),
+                  // Fixed overview board
+                  OverviewBoard(
+                    userName: _user['name'] as String? ?? 'User',
+                    verified: _user['verified'] as bool? ?? false,
+                    totalInvestmentPaise: totalBalancePaise,
+                    estimatedIndex: 1.25, // TODO: replace with backend value
+                    walletBalancePaise: availableBalancePaise,
+                    accruedReturnsPaise: accruedReturnsPaise,
+                    todayRsaPaise: todayPayoutEstPaise,
+                    yesterdayRsaPaise:
+                        (_demoUserSummary['today_payout_est_paise'] as int?) ??
+                        0,
+                    nextPayoutDate: nextPayoutDate,
+                    showWarning: balanceInconsistent,
+                  ),
+                  // Fixed market summary
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 0,
+                      vertical: 2,
                     ),
-                    // (search bar removed per design) — keeping header, KPI and content
-                    // Overview Board (replaces the old UserPanel)
-                    SliverToBoxAdapter(
-                      child: OverviewBoard(
-                        userName: _user['name'] as String? ?? 'User',
-                        verified: _user['verified'] as bool? ?? false,
-                        totalInvestmentPaise: totalBalancePaise,
-                        estimatedIndex:
-                            1.25, // TODO: replace with backend value
-                        walletBalancePaise: availableBalancePaise,
-                        accruedReturnsPaise: accruedReturnsPaise,
-                        todayRsaPaise: todayPayoutEstPaise,
-                        yesterdayRsaPaise:
-                            (_demoUserSummary['today_payout_est_paise']
-                                as int?) ??
-                            0,
-                        nextPayoutDate: nextPayoutDate,
-                        showWarning: balanceInconsistent,
+                    child: MarketSummaryCard(
+                      activeListings: _shops.length,
+                      todayVolume:
+                          null, // TODO: hook to backend for real-time volume
+                      totalFundRaised: currency.format(
+                        _shops.fold<double>(0.0, (p, e) => p + e.raised),
                       ),
                     ),
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 0,
-                          vertical: 2,
-                        ),
-                        child: MarketSummaryCard(
-                          activeListings: _shops.length,
-                          todayVolume:
-                              null, // TODO: hook to backend for real-time volume
-                          totalFundRaised: currency.format(
-                            _shops.fold<double>(0.0, (p, e) => p + e.raised),
-                          ),
-                        ),
-                      ),
+                  ),
+                  // Fixed segmented control
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
                     ),
-                    // Segmented control
-                    SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Container(
-                                padding: const EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.cardElevated,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => setState(() {
-                                          _selectedSegment = 'All Listings';
-                                          _applyFilters();
-                                        }),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.cardElevated,
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() {
+                                      _selectedSegment = 'All Listings';
+                                      _applyFilters();
+                                    }),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            _selectedSegment == 'All Listings'
+                                            ? AppColors.surface
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          'All Listings (${_shops.length})',
+                                          style: TextStyle(
                                             color:
                                                 _selectedSegment ==
                                                     'All Listings'
-                                                ? AppColors.surface
-                                                : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'All Listings (${_shops.length})',
-                                              style: TextStyle(
-                                                color:
-                                                    _selectedSegment ==
-                                                        'All Listings'
-                                                    ? Colors.white
-                                                    : AppColors.secondaryText,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                                                ? Colors.white
+                                                : AppColors.secondaryText,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: GestureDetector(
-                                        onTap: () => setState(() {
-                                          _selectedSegment = 'My Investments';
-                                          _applyFilters();
-                                        }),
-                                        child: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 10,
-                                          ),
-                                          decoration: BoxDecoration(
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () => setState(() {
+                                      _selectedSegment = 'My Investments';
+                                      _applyFilters();
+                                    }),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 10,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            _selectedSegment == 'My Investments'
+                                            ? AppColors.surface
+                                            : Colors.transparent,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          'My Investments (${_userInvestments.length})',
+                                          style: TextStyle(
                                             color:
                                                 _selectedSegment ==
                                                     'My Investments'
-                                                ? AppColors.surface
-                                                : Colors.transparent,
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              'My Investments (${_userInvestments.length})',
-                                              style: TextStyle(
-                                                color:
-                                                    _selectedSegment ==
-                                                        'My Investments'
-                                                    ? Colors.white
-                                                    : AppColors.secondaryText,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
+                                                ? Colors.white
+                                                : AppColors.secondaryText,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ],
+                                  ),
                                 ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Scrollable shop list only
+                  Expanded(
+                    child: RefreshIndicator(
+                      color: AppColors.accentGreen,
+                      backgroundColor: AppColors.cardElevated,
+                      onRefresh: _loadMockData,
+                      child: ListView(
+                        padding: EdgeInsets.zero,
+                        children: [
+                          // Featured shop card (first shop) - keep but only on All Listings.
+                          if (_shops.isNotEmpty &&
+                              _selectedSegment == 'All Listings')
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 0,
+                              ),
+                              child: ShopCard(
+                                shop: _shops.first,
+                                onInvest: () => _onInvest(_shops.first),
+                                onDetails: () => _onDetails(_shops.first),
+                                accentColor: AppColors.accentOrange,
+                                embedded: true,
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    // Featured shop card (first shop) - keep but only on All Listings.
-                    // Use embedded style so cards appear as one connected list area.
-                    if (_shops.isNotEmpty && _selectedSegment == 'All Listings')
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 0,
-                          ),
-                          child: ShopCard(
-                            shop: _shops.first,
-                            onInvest: () => _onInvest(_shops.first),
-                            onDetails: () => _onDetails(_shops.first),
-                            accentColor: AppColors.accentOrange,
-                            embedded: true,
-                          ),
-                        ),
-                      ),
-                    // Shop list
-                    _loading
-                        ? SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, i) => Padding(
+                          // Shop list
+                          if (_loading)
+                            ...List.generate(
+                              3,
+                              (i) => Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 0,
                                   vertical: 6,
                                 ),
                                 child: ShimmerPlaceholder(height: 120),
                               ),
-                              childCount: 3,
-                            ),
-                          )
-                        : _filteredShops.isEmpty
-                        ? SliverToBoxAdapter(
-                            child: Padding(
+                            )
+                          else if (_filteredShops.isEmpty)
+                            Padding(
                               padding: const EdgeInsets.all(32.0),
                               child: Center(
                                 child: Text(
@@ -451,48 +434,58 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                                   ),
                                 ),
                               ),
-                            ),
-                          )
-                        : () {
-                            // determine shops to display based on segment
-                            List<Shop> base = _filteredShops;
-                            if (_selectedSegment == 'My Investments') {
-                              base = _shops
-                                  .where(
-                                    (s) => _userInvestments.containsKey(s.name),
-                                  )
-                                  .toList();
-                            }
-                            // avoid duplicating featured in All Listings
-                            final displayedShops =
-                                (_selectedSegment == 'All Listings' &&
-                                    _shops.isNotEmpty &&
-                                    base.contains(_shops.first))
-                                ? base.where((s) => s != _shops.first).toList()
-                                : base;
+                            )
+                          else
+                            () {
+                              // determine shops to display based on segment
+                              List<Shop> base = _filteredShops;
+                              if (_selectedSegment == 'My Investments') {
+                                base = _shops
+                                    .where(
+                                      (s) =>
+                                          _userInvestments.containsKey(s.name),
+                                    )
+                                    .toList();
+                              }
+                              // avoid duplicating featured in All Listings
+                              final displayedShops =
+                                  (_selectedSegment == 'All Listings' &&
+                                      _shops.isNotEmpty &&
+                                      base.contains(_shops.first))
+                                  ? base
+                                        .where((s) => s != _shops.first)
+                                        .toList()
+                                  : base;
 
-                            return SliverList.separated(
-                              itemCount: displayedShops.length,
-                              separatorBuilder: (context, i) =>
-                                  const SizedBox(height: 6),
-                              itemBuilder: (context, i) {
-                                final shop = displayedShops[i];
-                                // show list-style (embedded) card for consistent connected UI
-                                return _StaggeredItem(
-                                  index: i,
-                                  child: ShopCard(
-                                    shop: shop,
-                                    onInvest: () => _onInvest(shop),
-                                    onDetails: () => _onDetails(shop),
-                                    accentColor: AppColors.accentOrange,
-                                    embedded: true,
-                                  ),
-                                );
-                              },
-                            );
-                          }(),
-                  ],
-                ),
+                              return Column(
+                                children: List.generate(displayedShops.length, (
+                                  i,
+                                ) {
+                                  final shop = displayedShops[i];
+                                  return Column(
+                                    children: [
+                                      if (i > 0) const SizedBox(height: 6),
+                                      _StaggeredItem(
+                                        index: i,
+                                        child: ShopCard(
+                                          shop: shop,
+                                          onInvest: () => _onInvest(shop),
+                                          onDetails: () => _onDetails(shop),
+                                          accentColor: AppColors.accentOrange,
+                                          embedded: true,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                              );
+                            }(),
+                          const SizedBox(height: 20), // Bottom padding
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
