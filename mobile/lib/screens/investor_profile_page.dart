@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import 'welcome_screen.dart';
 
 class InvestorProfilePage extends StatefulWidget {
   const InvestorProfilePage({super.key});
@@ -651,20 +650,9 @@ class _ProfilePageState extends State<InvestorProfilePage> {
           Navigator.of(context).pop(); // Dismiss loading dialog
         }
 
-        // Navigate to welcome screen with fade animation
+        // Pop to root to let main app handle navigation
         if (mounted) {
-          Navigator.of(context).pushAndRemoveUntil(
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  WelcomeScreen(onContinue: (_) {}),
-              transitionsBuilder:
-                  (context, animation, secondaryAnimation, child) {
-                    return FadeTransition(opacity: animation, child: child);
-                  },
-              transitionDuration: const Duration(milliseconds: 500),
-            ),
-            (route) => false, // Remove all previous routes
-          );
+          Navigator.of(context).popUntil((route) => route.isFirst);
         }
       } catch (e) {
         // Dismiss loading dialog

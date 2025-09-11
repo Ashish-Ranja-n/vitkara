@@ -12,6 +12,7 @@ class AuthState {
   final bool isAuthenticated;
   final bool isNewUser;
   final bool isLoading;
+  final bool justSignedOut;
 
   AuthState({
     this.accessToken,
@@ -21,6 +22,7 @@ class AuthState {
     this.isAuthenticated = false,
     this.isNewUser = false,
     this.isLoading = true,
+    this.justSignedOut = false,
   });
 
   AuthState copyWith({
@@ -31,6 +33,7 @@ class AuthState {
     bool? isAuthenticated,
     bool? isNewUser,
     bool? isLoading,
+    bool? justSignedOut,
   }) {
     return AuthState(
       accessToken: accessToken ?? this.accessToken,
@@ -40,6 +43,7 @@ class AuthState {
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isNewUser: isNewUser ?? this.isNewUser,
       isLoading: isLoading ?? this.isLoading,
+      justSignedOut: justSignedOut ?? this.justSignedOut,
     );
   }
 }
@@ -217,12 +221,19 @@ class AuthProvider extends ChangeNotifier {
   Future<bool> signOut() async {
     final success = await _authService.signOut();
 
-    // Clear cached investor data
+    // Clear all cached data
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('access_token');
+    await prefs.remove('flow_completed');
     await prefs.remove('investor_data');
 
-    _state = AuthState(isLoading: false);
+    _state = AuthState(isLoading: false, justSignedOut: true);
     notifyListeners();
     return success;
+  }
+
+  void resetJustSignedOut() {
+    _state = _state.copyWith(justSignedOut: false);
+    notifyListeners();
   }
 }

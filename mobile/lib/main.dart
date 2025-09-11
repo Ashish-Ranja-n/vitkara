@@ -76,6 +76,7 @@ class MbdimFlow extends StatefulWidget {
 class _MbdimFlowState extends State<MbdimFlow> {
   int _step = 0;
   String? _pendingId;
+  bool _initialized = false;
 
   void _handleAuthStart(AuthResult result) {
     if (result.error != null) {
@@ -130,6 +131,15 @@ class _MbdimFlowState extends State<MbdimFlow> {
 
   @override
   Widget build(BuildContext context) {
+    if (!_initialized) {
+      _initialized = true;
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      if (auth.state.justSignedOut) {
+        auth.resetJustSignedOut();
+        _step = 1;
+      }
+    }
+
     switch (_step) {
       case 0:
         return OnboardingScreen(onGetStarted: () => setState(() => _step++));
