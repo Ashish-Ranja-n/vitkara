@@ -16,7 +16,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   final TextEditingController _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _authService = AuthService();
-  bool _isLoading = false;
+  bool _isContinueLoading = false;
+  bool _isGoogleLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -132,18 +133,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       elevation: 4,
                       shadowColor: AppColors.primaryCyan.withValues(alpha: 0.3),
                     ),
-                    onPressed: _isLoading
+                    onPressed: _isContinueLoading
                         ? null
                         : () async {
                             if (_formKey.currentState!.validate()) {
-                              setState(() => _isLoading = true);
+                              setState(() => _isContinueLoading = true);
 
                               final result = await _authService.startAuth(
                                 _controller.text.trim(),
                               );
 
                               if (mounted) {
-                                setState(() => _isLoading = false);
+                                setState(() => _isContinueLoading = false);
                                 if (result.error != null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -157,7 +158,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           },
-                    child: _isLoading
+                    child: _isContinueLoading
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -212,16 +213,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         borderRadius: BorderRadius.circular(AppRadii.button),
                       ),
                     ),
-                    onPressed: _isLoading
+                    onPressed: _isGoogleLoading
                         ? null
                         : () async {
-                            setState(() => _isLoading = true);
+                            setState(() => _isGoogleLoading = true);
 
                             final result = await _authService
                                 .signInWithGoogle();
 
                             if (mounted) {
-                              setState(() => _isLoading = false);
+                              setState(() => _isGoogleLoading = false);
                               if (result.error != null) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -236,7 +237,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               }
                             }
                           },
-                    icon: _isLoading
+                    icon: _isGoogleLoading
                         ? SizedBox(
                             height: 20,
                             width: 20,
@@ -252,7 +253,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                             height: 24,
                             width: 24,
                           ),
-                    label: _isLoading
+                    label: _isGoogleLoading
                         ? Text(
                             'Signing in...',
                             style: AppTypography.button.copyWith(
