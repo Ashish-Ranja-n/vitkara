@@ -117,12 +117,12 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     // Use minimum investment as ticket price
     final ticket = (campaign['minInvestment'] ?? 100).toDouble();
 
-    // Calculate average UPI (mock calculation based on target)
-    final targetAmount = (campaign['targetAmount'] ?? 0).toDouble();
-    final avgUpi = (targetAmount / 30).roundToDouble(); // Mock daily average
+    // Use actual average UPI from shop data
+    final avgUpi = (shopData['avgUpiTransactions'] ?? 0).toDouble();
 
     // Determine if trending based on current vs target ratio
     final currentAmount = (campaign['currentAmount'] ?? 0).toDouble();
+    final targetAmount = (campaign['targetAmount'] ?? 0).toDouble();
     final progressRatio = targetAmount > 0 ? currentAmount / targetAmount : 0.0;
     final trending = progressRatio > 0.5;
 

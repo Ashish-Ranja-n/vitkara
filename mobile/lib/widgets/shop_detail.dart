@@ -26,36 +26,27 @@ class ShopDetailPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                CircleAvatar(
-                  radius: 32,
-                  backgroundImage: AssetImage(shop.logoAsset),
-                  backgroundColor: AppColors.surface,
-                ),
-                const SizedBox(width: 18),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        shop.name,
-                        style: AppTypography.cardTitle.copyWith(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        '${shop.category} · ${shop.city}',
-                        style: AppTypography.caption,
-                      ),
-                    ],
+                Text(
+                  shop.name,
+                  style: AppTypography.cardTitle.copyWith(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
                   ),
+                ),
+                Text(
+                  '${shop.category} · ${shop.city}',
+                  style: AppTypography.caption,
                 ),
               ],
             ),
             const SizedBox(height: 22),
-            _buildStatRow('Avg UPI/day', currency.format(shop.avgUpi)),
+            _buildStatRow(
+              'Avg UPI/day',
+              NumberFormat('#,##0.##', 'en_IN').format(shop.avgUpi),
+            ),
             _buildStatRow('Ticket', currency.format(shop.ticket)),
             _buildStatRow('Est Return', '${shop.estReturn}x'),
             _buildStatRow('Raised', currency.format(shop.raised)),

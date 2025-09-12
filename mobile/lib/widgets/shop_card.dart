@@ -88,7 +88,10 @@ class ShopCard extends StatelessWidget {
                       spacing: 6,
                       runSpacing: 6,
                       children: [
-                        _statChip('Avg UPI', currency.format(shop.avgUpi)),
+                        _statChip(
+                          'Avg UPI',
+                          NumberFormat('#,##0.##', 'en_IN').format(shop.avgUpi),
+                        ),
                         _statChip('Ticket', currency.format(shop.ticket)),
                         _statChip('Est', '${shop.estReturn}x'),
                       ],

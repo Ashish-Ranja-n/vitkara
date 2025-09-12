@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
     await dbConnect();
 
     const campaigns = await InvestmentCampaign.find({ status: 'active' })
-      .populate('shopId', 'name email location owner verified totalRaised activeCampaigns')
+      .populate('shopId', 'name email location owner verified totalRaised activeCampaigns avgUpiTransactions')
       .sort({ createdAt: -1 })
       .limit(50);
 

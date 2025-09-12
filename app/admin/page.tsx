@@ -68,6 +68,7 @@ export default function AdminDashboard() {
     email: '',
     location: '',
     owner: '',
+    avgUpiTransactions: '',
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [shopFormErrors, setShopFormErrors] = useState<Record<string, string>>({});
@@ -281,6 +282,7 @@ export default function AdminDashboard() {
           email: '',
           location: '',
           owner: '',
+          avgUpiTransactions: '',
         });
         setShopFormErrors({});
         // Refresh shops list
@@ -1245,6 +1247,23 @@ export default function AdminDashboard() {
                   onChange={handleShopInputChange}
                   className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors duration-200 text-gray-900 placeholder-gray-500"
                   placeholder="City, State (e.g., Mumbai, Maharashtra)"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="avgUpiTransactions" className="block text-sm font-medium text-gray-700 mb-2">
+                  Average UPI Transactions per Day <span className="text-gray-500">(Optional)</span>
+                </label>
+                <input
+                  type="number"
+                  id="avgUpiTransactions"
+                  name="avgUpiTransactions"
+                  value={shopFormData.avgUpiTransactions}
+                  onChange={handleShopInputChange}
+                  className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors duration-200 text-gray-900 placeholder-gray-500"
+                  placeholder="e.g., 5000"
+                  min="0"
+                  step="0.01"
                 />
               </div>
 

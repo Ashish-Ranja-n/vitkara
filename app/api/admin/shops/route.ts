@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, location, owner, verified = true } = await request.json();
+    const { name, email, location, owner, avgUpiTransactions, verified = true } = await request.json();
 
     // Validate required fields
     if (!name || !email || !owner) {
@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
       email,
       location,
       owner,
+      avgUpiTransactions,
       verified,
     });
 
