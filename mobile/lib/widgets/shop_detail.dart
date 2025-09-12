@@ -6,7 +6,12 @@ import '../services/investor_service.dart';
 
 class ShopDetailPage extends StatefulWidget {
   final Shop shop;
-  const ShopDetailPage({super.key, required this.shop});
+  final VoidCallback? onInvestmentSuccess;
+  const ShopDetailPage({
+    super.key,
+    required this.shop,
+    this.onInvestmentSuccess,
+  });
 
   @override
   State<ShopDetailPage> createState() => _ShopDetailPageState();
@@ -25,6 +30,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
     int ticketCount = 1;
     final maxTickets = (currentShop.maxInvestment / currentShop.ticket).floor();
     bool isInvesting = false;
+    final outerContext = context;
 
     showModalBottomSheet(
       context: context,
@@ -35,7 +41,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
           void makeInvestment() async {
             if (ticketCount < 1) {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(outerContext).showSnackBar(
                 const SnackBar(
                   content: Text('Please select at least 1 ticket'),
                 ),
@@ -45,7 +51,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
 
             if (ticketCount > maxTickets) {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(outerContext).showSnackBar(
                 SnackBar(
                   content: Text('Maximum ${maxTickets} tickets allowed'),
                 ),
@@ -63,40 +69,20 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
               );
 
               if (result != null && result['success'] == true) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(outerContext).showSnackBar(
                   const SnackBar(content: Text('Investment successful!')),
                 );
-                if (result['campaign'] != null) {
-                  final newRaised =
-                      result['campaign']['currentAmount'] ?? currentShop.raised;
-                  setState(
-                    () => currentShop = Shop(
-                      id: currentShop.id,
-                      name: currentShop.name,
-                      category: currentShop.category,
-                      city: currentShop.city,
-                      logoAsset: currentShop.logoAsset,
-                      avgUpi: currentShop.avgUpi,
-                      ticket: currentShop.ticket,
-                      estReturn: currentShop.estReturn,
-                      raised: newRaised,
-                      target: currentShop.target,
-                      trending: currentShop.trending,
-                      minInvestment: currentShop.minInvestment,
-                      maxInvestment: currentShop.maxInvestment,
-                    ),
-                  );
-                }
                 Navigator.of(context).pop();
+                widget.onInvestmentSuccess?.call();
               } else {
                 final message = result?['message'] ?? 'Investment failed';
                 ScaffoldMessenger.of(
-                  context,
+                  outerContext,
                 ).showSnackBar(SnackBar(content: Text(message)));
                 Navigator.of(context).pop();
               }
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(
+              ScaffoldMessenger.of(outerContext).showSnackBar(
                 const SnackBar(content: Text('Network error occurred')),
               );
               Navigator.of(context).pop();

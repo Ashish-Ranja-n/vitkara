@@ -97,110 +97,116 @@ class _OverviewDetailScreenState extends State<OverviewDetailScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.edge),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _sectionHeading('Summary'),
-              Hero(
-                tag: 'total_investment',
-                child: _metricTile(
-                  'Total Investment',
-                  formatINRFromPaise(totalInvestmentPaise),
-                  valueColor: AppColors.kpiHighlight,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              _sectionHeading('Balances'),
-              Row(
-                children: [
-                  Expanded(
-                    child: _metricTile(
-                      'Invested (principal)',
-                      investedPrincipalPaise != null
-                          ? formatINRFromPaise(investedPrincipalPaise!)
-                          : '—',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _metricTile(
-                      'Available',
-                      availableBalancePaise != null
-                          ? formatINRFromPaise(availableBalancePaise!)
-                          : '—',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _sectionHeading('Returns & Payouts'),
-              Row(
-                children: [
-                  Expanded(
-                    child: _metricTile(
-                      'Accrued returns',
-                      accruedReturnsPaise != null
-                          ? formatINRFromPaise(accruedReturnsPaise!)
-                          : '—',
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _metricTile(
-                      'Today (est)',
-                      formatINRFromPaise(todayPayoutEstPaise),
-                      valueColor: AppColors.kpiHighlight,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              _metricTile(
-                'Yesterday (est)',
-                formatINRFromPaise(yesterdayPayoutPaise),
-              ),
-              const SizedBox(height: 12),
-              _sectionHeading('Next payout'),
-              _metricTile(
-                'Next payout date',
-                nextPayoutDate != null ? dateFmt.format(nextPayoutDate!) : '—',
-              ),
-
-              const SizedBox(height: 16),
-              _sectionHeading('Per-shop investments'),
-              if (_investments.isEmpty)
-                _metricTile('No investments yet', '—')
-              else
-                ..._investments.map((inv) {
-                  final shopName =
-                      inv['campaignId']['shopId']['name'] ?? 'Unknown';
-                  final amount = (inv['amount'] ?? 0).toDouble();
-                  return Column(
-                    children: [
-                      _metricTile(
-                        shopName,
-                        formatINRFromPaise((amount * 100).toInt()),
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionHeading('Summary'),
+                    Hero(
+                      tag: 'total_investment',
+                      child: _metricTile(
+                        'Total Investment',
+                        formatINRFromPaise(totalInvestmentPaise),
+                        valueColor: AppColors.kpiHighlight,
                       ),
-                      const SizedBox(height: 8),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                    const SizedBox(height: 12),
 
-              const SizedBox(height: 16),
-              _sectionHeading('Payout history (mock)'),
-              _metricTile('2025-09-01', '₹120.00'),
-              const SizedBox(height: 8),
-              _metricTile('2025-08-31', '₹100.00'),
+                    _sectionHeading('Balances'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _metricTile(
+                            'Invested (principal)',
+                            investedPrincipalPaise != null
+                                ? formatINRFromPaise(investedPrincipalPaise!)
+                                : '—',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _metricTile(
+                            'Available',
+                            availableBalancePaise != null
+                                ? formatINRFromPaise(availableBalancePaise!)
+                                : '—',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _sectionHeading('Returns & Payouts'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _metricTile(
+                            'Accrued returns',
+                            accruedReturnsPaise != null
+                                ? formatINRFromPaise(accruedReturnsPaise!)
+                                : '—',
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _metricTile(
+                            'Today (est)',
+                            formatINRFromPaise(todayPayoutEstPaise),
+                            valueColor: AppColors.kpiHighlight,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _metricTile(
+                      'Yesterday (est)',
+                      formatINRFromPaise(yesterdayPayoutPaise),
+                    ),
+                    const SizedBox(height: 12),
+                    _sectionHeading('Next payout'),
+                    _metricTile(
+                      'Next payout date',
+                      nextPayoutDate != null
+                          ? dateFmt.format(nextPayoutDate!)
+                          : '—',
+                    ),
 
-              const SizedBox(height: 16),
-              _sectionHeading('Notes'),
-              Text(
-                'Amounts stored in paise (integer). Values shown are indicative. // TODO: Replace demo data with backend values and wire refresh flows.',
-                style: AppTypography.body.copyWith(color: AppColors.mutedText),
-              ),
-            ],
-          ),
+                    const SizedBox(height: 16),
+                    _sectionHeading('Per-shop investments'),
+                    if (_investments.isEmpty)
+                      _metricTile('No investments yet', '—')
+                    else
+                      ..._investments.map((inv) {
+                        final shopName =
+                            inv['campaignId']['shopId']['name'] ?? 'Unknown';
+                        final amount = (inv['amount'] ?? 0).toDouble();
+                        return Column(
+                          children: [
+                            _metricTile(
+                              shopName,
+                              formatINRFromPaise((amount * 100).toInt()),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        );
+                      }),
+
+                    const SizedBox(height: 16),
+                    _sectionHeading('Payout history (mock)'),
+                    _metricTile('2025-09-01', '₹120.00'),
+                    const SizedBox(height: 8),
+                    _metricTile('2025-08-31', '₹100.00'),
+
+                    const SizedBox(height: 16),
+                    _sectionHeading('Notes'),
+                    Text(
+                      'Amounts stored in paise (integer). Values shown are indicative. // TODO: Replace demo data with backend values and wire refresh flows.',
+                      style: AppTypography.body.copyWith(
+                        color: AppColors.mutedText,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

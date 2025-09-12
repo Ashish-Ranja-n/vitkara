@@ -18,8 +18,6 @@ class _OverviewBoardState extends State<OverviewBoard> {
   final double _estimatedIndex = 1.25; // Default value
   final int _todayRsaPaise = 0; // N/A
   final int _yesterdayRsaPaise = 0; // N/A
-  final DateTime? _nextPayoutDate = null; // N/A
-  final int? _accruedReturnsPaise = null; // N/A
   final bool _showWarning = false;
 
   Future<void> _onRefresh() async {

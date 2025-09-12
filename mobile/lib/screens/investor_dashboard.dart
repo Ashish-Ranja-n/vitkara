@@ -11,6 +11,7 @@ import '../widgets/shimmer_placeholder.dart';
 // previous UserPanel replaced by OverviewBoard
 import '../widgets/overview_board.dart';
 import '../widgets/animated_background.dart';
+import '../widgets/investment_card.dart';
 import '../services/investor_service.dart';
 
 class InvestorDashboard extends StatefulWidget {
@@ -178,7 +179,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     const logoAsset = 'assets/shop1.png';
 
     return Shop(
-      id: campaign['_id'] ?? '',
+      id: shopData['_id'] ?? '',
       name: shopData['name'] ?? 'Unknown Shop',
       category: category,
       city: city,
@@ -249,7 +250,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   void _onDetails(Shop shop) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => ShopDetailPage(shop: shop)),
+      MaterialPageRoute(
+        builder: (_) =>
+            ShopDetailPage(shop: shop, onInvestmentSuccess: _loadMockData),
+      ),
     ).then((_) => _loadMockData());
   }
 
@@ -418,44 +422,120 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                                         ),
                                       ),
                                     )
-                                  else
+                                  else if (_selectedSegment == 'My Investments')
                                     () {
-                                      // determine shops to display based on segment
-                                      List<Shop> base = _filteredShops;
-                                      if (_selectedSegment ==
-                                          'My Investments') {
-                                        base = _filteredShops
-                                            .where(
-                                              (s) => _userInvestments
-                                                  .containsKey(s.id),
-                                            )
-                                            .toList();
+                                      final investmentEntries = _userInvestments
+                                          .entries
+                                          .toList();
+                                      if (investmentEntries.isEmpty) {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(32.0),
+                                          child: Center(
+                                            child: Text(
+                                              'No investments yet.',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Color(0xFF9AA5AD),
+                                              ),
+                                            ),
+                                          ),
+                                        );
                                       }
 
                                       return Column(
-                                        children: List.generate(base.length, (
-                                          i,
-                                        ) {
-                                          final shop = base[i];
-                                          return Column(
-                                            children: [
-                                              if (i > 0)
-                                                const SizedBox(height: 6),
-                                              _StaggeredItem(
-                                                index: i,
-                                                child: ShopCard(
-                                                  shop: shop,
-                                                  onInvest: () =>
-                                                      _onInvest(shop),
-                                                  onDetails: () =>
-                                                      _onDetails(shop),
-                                                  accentColor:
-                                                      AppColors.accentOrange,
-                                                ),
+                                        children: List.generate(
+                                          investmentEntries.length,
+                                          (i) {
+                                            final entry = investmentEntries[i];
+                                            final shopId = entry.key;
+                                            final investment = entry.value;
+
+                                            // Find the corresponding shop for category and city
+                                            final shop = _shops.firstWhere(
+                                              (s) => s.id == shopId,
+                                              orElse: () => Shop(
+                                                id: shopId,
+                                                name:
+                                                    investment['name'] ??
+                                                    'Unknown Shop',
+                                                category: 'Unknown',
+                                                city: 'Unknown',
+                                                logoAsset: 'assets/shop1.png',
+                                                avgUpi: 0.0,
+                                                ticket: 0.0,
+                                                estReturn: 1.0,
+                                                raised: 0.0,
+                                                target: 0.0,
+                                                minInvestment: 0.0,
+                                                maxInvestment: 0.0,
                                               ),
-                                            ],
-                                          );
-                                        }),
+                                            );
+
+                                            return Column(
+                                              children: [
+                                                if (i > 0)
+                                                  const SizedBox(height: 6),
+                                                _StaggeredItem(
+                                                  index: i,
+                                                  child: InvestmentCard(
+                                                    shopName:
+                                                        investment['name'] ??
+                                                        'Unknown Shop',
+                                                    category: shop.category,
+                                                    city: shop.city,
+                                                    units:
+                                                        investment['units'] ??
+                                                        0,
+                                                    invested:
+                                                        investment['invested'] ??
+                                                        0.0,
+                                                    nextPayout:
+                                                        investment['nextPayout'] ??
+                                                        DateTime.now().add(
+                                                          const Duration(
+                                                            days: 7,
+                                                          ),
+                                                        ),
+                                                    dailyReturn:
+                                                        investment['dailyReturn'] ??
+                                                        0.0,
+                                                    onDetails: () =>
+                                                        _onDetails(shop),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }()
+                                  else
+                                    () {
+                                      return Column(
+                                        children: List.generate(
+                                          _filteredShops.length,
+                                          (i) {
+                                            final shop = _filteredShops[i];
+                                            return Column(
+                                              children: [
+                                                if (i > 0)
+                                                  const SizedBox(height: 6),
+                                                _StaggeredItem(
+                                                  index: i,
+                                                  child: ShopCard(
+                                                    shop: shop,
+                                                    onInvest: () =>
+                                                        _onInvest(shop),
+                                                    onDetails: () =>
+                                                        _onDetails(shop),
+                                                    accentColor:
+                                                        AppColors.accentOrange,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
                                       );
                                     }(),
                                   const SizedBox(height: 20), // Bottom padding
