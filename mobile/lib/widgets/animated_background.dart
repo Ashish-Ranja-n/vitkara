@@ -45,7 +45,9 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     )..repeat();
     // periodic tick to update positions at ~60fps
     _timer = Timer.periodic(const Duration(milliseconds: 16), (_) {
-      for (final p in _particles) p.update(_size);
+      for (final p in _particles) {
+        p.update(_size);
+      }
       setState(() {});
     });
   }
