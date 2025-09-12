@@ -9,10 +9,20 @@ export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    const campaigns = await InvestmentCampaign.find({ status: 'active' })
+    const { searchParams } = new URL(request.url);
+    const includeAll = searchParams.get('includeAll') === 'true';
+
+    let query = {};
+    if (!includeAll) {
+      // Default behavior: only active campaigns for "All Listings"
+      query = { status: 'active' };
+    }
+    // If includeAll=true, fetch all campaigns regardless of status
+
+    const campaigns = await InvestmentCampaign.find(query)
       .populate('shopId', 'name email location owner verified totalRaised activeCampaigns avgUpiTransactions')
       .sort({ createdAt: -1 })
-      .limit(50);
+      .limit(includeAll ? 200 : 50); // Allow more campaigns when fetching all
 
     return NextResponse.json({
       campaigns,

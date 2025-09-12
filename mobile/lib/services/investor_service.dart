@@ -79,7 +79,7 @@ class InvestorService {
   }
 
   // Get investor campaigns
-  Future<Map<String, dynamic>?> getCampaigns() async {
+  Future<Map<String, dynamic>?> getCampaigns({bool includeAll = false}) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token');
@@ -88,9 +88,13 @@ class InvestorService {
         return null;
       }
 
+      final uri = Uri.parse(
+        '$baseUrl/investor/campaigns',
+      ).replace(queryParameters: includeAll ? {'includeAll': 'true'} : {});
+
       final response = await http
           .get(
-            Uri.parse('$baseUrl/investor/campaigns'),
+            uri,
             headers: {
               'Content-Type': 'application/json',
               'Accept': 'application/json',

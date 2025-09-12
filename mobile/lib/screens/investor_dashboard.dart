@@ -46,10 +46,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     _loadMockData();
   }
 
-  Future<void> _loadMockData() async {
+  Future<void> _loadMockData({bool includeAll = false}) async {
     setState(() => _loading = true);
     try {
-      await _fetchCampaigns();
+      await _fetchCampaigns(includeAll: includeAll);
       await _fetchUserInvestments();
     } catch (e) {
       // Set empty list if API fails
@@ -101,10 +101,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     }
   }
 
-  Future<void> _fetchCampaigns() async {
+  Future<void> _fetchCampaigns({bool includeAll = false}) async {
     try {
       final investorService = InvestorService();
-      final result = await investorService.getCampaigns();
+      final result = await investorService.getCampaigns(includeAll: includeAll);
 
       if (result != null && result['success'] != false) {
         final campaigns = result['campaigns'] as List<dynamic>? ?? [];
@@ -336,10 +336,12 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 GestureDetector(
-                                  onTap: () => setState(() {
-                                    _selectedSegment = 'All Listings';
-                                    _applyFilters();
-                                  }),
+                                  onTap: () async {
+                                    setState(
+                                      () => _selectedSegment = 'All Listings',
+                                    );
+                                    await _loadMockData(includeAll: false);
+                                  },
                                   child: Text(
                                     'All Listings (${_shops.length})',
                                     style: TextStyle(
@@ -366,10 +368,12 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                                 ),
                                 const SizedBox(width: 20),
                                 GestureDetector(
-                                  onTap: () => setState(() {
-                                    _selectedSegment = 'My Investments';
-                                    _applyFilters();
-                                  }),
+                                  onTap: () async {
+                                    setState(
+                                      () => _selectedSegment = 'My Investments',
+                                    );
+                                    await _loadMockData(includeAll: true);
+                                  },
                                   child: Text(
                                     'My Investments (${_userInvestments.length})',
                                     style: TextStyle(
