@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
     const query: CampaignQuery = {};
 
     if (status === 'active') {
-      query.status = 'active';
       // Also include campaigns that are 'funded' or 'repaying' as they are still visible to investors
       query.status = { $in: ['active', 'funded', 'repaying'] };
     } else if (status !== 'all') {
