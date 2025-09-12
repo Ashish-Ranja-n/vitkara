@@ -49,6 +49,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     setState(() => _loading = true);
     try {
       await _fetchCampaigns();
+      await _fetchUserInvestments();
     } catch (e) {
       // Set empty list if API fails
       _shops = [];
@@ -58,6 +59,34 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
       _loading = false;
       _refreshCounter++;
     });
+  }
+
+  Future<void> _fetchUserInvestments() async {
+    try {
+      final investorService = InvestorService();
+      final result = await investorService.getInvestments();
+
+      if (result != null && result['success'] == true) {
+        final investments = result['investments'] as List<dynamic>? ?? [];
+
+        _userInvestments.clear();
+        for (var inv in investments) {
+          final shopData = inv['campaignId']['shopId'] as Map<String, dynamic>;
+          final shopName = shopData['name'] ?? 'Unknown';
+          final amount = (inv['amount'] ?? 0).toDouble();
+          final shares = (inv['shares'] ?? 0).toInt();
+
+          _userInvestments[shopName] = {
+            'units': shares,
+            'invested': amount,
+            'nextPayout': DateTime.now().add(const Duration(days: 7)),
+            'dailyReturn': 0.0,
+          };
+        }
+      }
+    } catch (e) {
+      // Ignore errors for user investments
+    }
   }
 
   Future<void> _fetchCampaigns() async {

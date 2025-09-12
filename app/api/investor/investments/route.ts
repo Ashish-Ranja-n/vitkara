@@ -26,6 +26,58 @@ async function getCurrentUser(request: NextRequest) {
   }
 }
 
+export async function GET(request: NextRequest) {
+  const investor = await getCurrentUser(request);
+  if (!investor) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    await dbConnect();
+
+    // Find all investments for this investor
+    const investments = await Investment.find({ investorId: investor._id })
+      .populate({
+        path: 'campaignId',
+        populate: {
+          path: 'shopId',
+          model: 'Shop',
+        },
+      })
+      .sort({ purchaseDate: -1 });
+
+    return NextResponse.json({
+      investments: investments.map(inv => ({
+        _id: inv._id,
+        amount: inv.amount,
+        shares: inv.shares,
+        expectedReturns: inv.expectedReturns,
+        purchaseDate: inv.purchaseDate,
+        status: inv.status,
+        campaignId: {
+          _id: inv.campaignId._id,
+          name: inv.campaignId.name,
+          shopId: {
+            _id: inv.campaignId.shopId._id,
+            name: inv.campaignId.shopId.name,
+            location: inv.campaignId.shopId.location,
+          },
+        },
+      })),
+      success: true,
+    });
+  } catch (error) {
+    console.error('Fetching investments error:', error);
+    return NextResponse.json(
+      {
+        message: 'Internal server error',
+        success: false,
+      },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   const investor = await getCurrentUser(request);
   if (!investor) {

@@ -56,16 +56,7 @@ class _OverviewBoardState extends State<OverviewBoard> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => OverviewDetailScreen(
-                        userName: userName,
-                        totalInvestmentPaise: totalInvestmentPaise,
-                        investedPrincipalPaise: null,
-                        availableBalancePaise: walletBalancePaise,
-                        accruedReturnsPaise: _accruedReturnsPaise,
-                        todayPayoutEstPaise: _todayRsaPaise,
-                        yesterdayPayoutPaise: _yesterdayRsaPaise,
-                        nextPayoutDate: _nextPayoutDate,
-                      ),
+                      builder: (_) => const OverviewDetailScreen(),
                     ),
                   );
                 },

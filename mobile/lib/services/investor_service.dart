@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class InvestorService {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://vitkara.com/api',
+    defaultValue: 'http://192.168.29.22:3000/api',
   );
 
   // Get investor profile
@@ -106,6 +106,34 @@ class InvestorService {
           'success': false,
           'message': 'Failed to load campaigns: ${response.statusCode}',
         };
+      }
+    } catch (e) {
+      return {'success': false, 'message': 'Network error occurred'};
+    }
+  }
+
+  // Get investor investments
+  Future<Map<String, dynamic>?> getInvestments() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      if (token == null) {
+        return null;
+      }
+
+      final response = await http.get(
+        Uri.parse('$baseUrl/investor/investments'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        return {'success': false, 'message': 'Failed to load investments'};
       }
     } catch (e) {
       return {'success': false, 'message': 'Network error occurred'};

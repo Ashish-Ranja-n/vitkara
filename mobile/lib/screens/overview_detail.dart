@@ -2,28 +2,54 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../design_tokens.dart';
 import '../utils/formatters.dart';
+import '../services/investor_service.dart';
 
-class OverviewDetailScreen extends StatelessWidget {
-  final String userName;
-  final int totalInvestmentPaise;
-  final int? investedPrincipalPaise;
-  final int? availableBalancePaise;
-  final int? accruedReturnsPaise;
-  final int todayPayoutEstPaise;
-  final int yesterdayPayoutPaise;
-  final DateTime? nextPayoutDate;
+class OverviewDetailScreen extends StatefulWidget {
+  const OverviewDetailScreen({super.key});
 
-  const OverviewDetailScreen({
-    super.key,
-    required this.userName,
-    required this.totalInvestmentPaise,
-    this.investedPrincipalPaise,
-    this.availableBalancePaise,
-    this.accruedReturnsPaise,
-    required this.todayPayoutEstPaise,
-    required this.yesterdayPayoutPaise,
-    this.nextPayoutDate,
-  });
+  @override
+  State<OverviewDetailScreen> createState() => _OverviewDetailScreenState();
+}
+
+class _OverviewDetailScreenState extends State<OverviewDetailScreen> {
+  bool _loading = true;
+  Map<String, dynamic>? _profile;
+  List<dynamic> _investments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    setState(() => _loading = true);
+    try {
+      final investorService = InvestorService();
+      final profile = await investorService.getProfile();
+      final investmentsResult = await investorService.getInvestments();
+
+      setState(() {
+        _profile = profile;
+        _investments = investmentsResult?['investments'] ?? [];
+        _loading = false;
+      });
+    } catch (e) {
+      setState(() => _loading = false);
+    }
+  }
+
+  String get userName => _profile?['name'] ?? 'User';
+  int get totalInvestmentPaise =>
+      ((_profile?['totalInvestment'] ?? 0) * 100).toInt();
+  int? get investedPrincipalPaise =>
+      totalInvestmentPaise > 0 ? totalInvestmentPaise : null;
+  int? get availableBalancePaise =>
+      ((_profile?['walletBalance'] ?? 0) * 100).toInt();
+  int? get accruedReturnsPaise => null; // TODO: calculate from investments
+  int get todayPayoutEstPaise => 0; // TODO: calculate
+  int get yesterdayPayoutPaise => 0; // TODO: calculate
+  DateTime? get nextPayoutDate => null; // TODO: calculate
 
   Widget _sectionHeading(String title) => Padding(
     padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -64,6 +90,7 @@ class OverviewDetailScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
+        foregroundColor: AppColors.primaryText,
         elevation: 0,
         title: Text('Overview', style: AppTypography.title),
       ),
@@ -141,13 +168,24 @@ class OverviewDetailScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 16),
-              _sectionHeading('Per-shop investments (mock)'),
-              // Mock list — TODO: replace with real per-shop investments from backend
-              _metricTile('FreshMart', '₹40,000.00'),
-              const SizedBox(height: 8),
-              _metricTile('Urban Tailor', '₹3,000.00'),
-              const SizedBox(height: 8),
-              _metricTile('Chai Point', '₹0.00'),
+              _sectionHeading('Per-shop investments'),
+              if (_investments.isEmpty)
+                _metricTile('No investments yet', '—')
+              else
+                ..._investments.map((inv) {
+                  final shopName =
+                      inv['campaignId']['shopId']['name'] ?? 'Unknown';
+                  final amount = (inv['amount'] ?? 0).toDouble();
+                  return Column(
+                    children: [
+                      _metricTile(
+                        shopName,
+                        formatINRFromPaise((amount * 100).toInt()),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  );
+                }).toList(),
 
               const SizedBox(height: 16),
               _sectionHeading('Payout history (mock)'),
