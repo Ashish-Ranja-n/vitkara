@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
@@ -156,7 +156,7 @@ export async function GET(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
@@ -192,7 +192,7 @@ export async function PUT(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }

@@ -48,8 +48,8 @@ export async function GET(request: NextRequest) {
       },
       success: true,
     });
-  } catch (error) {
-    console.error('Get investor campaigns error:', error);
+  } catch {
+    console.error('Get investor campaigns error');
     return NextResponse.json(
       {
         message: 'Internal server error',

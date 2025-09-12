@@ -19,7 +19,7 @@ async function getCurrentUser(request: NextRequest) {
     await dbConnect();
     const investor = await Investor.findById(decoded.id);
     return investor;
-  } catch (error) {
+  } catch {
     return null;
   }
 }

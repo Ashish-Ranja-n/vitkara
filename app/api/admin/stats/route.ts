@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
@@ -40,8 +40,8 @@ export async function GET(request: NextRequest) {
       totalShops,
       totalAdmins,
     });
-  } catch (error) {
-    console.error('Stats error:', error);
+  } catch {
+    console.error('Stats error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

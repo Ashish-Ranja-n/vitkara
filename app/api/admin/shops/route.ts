@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
@@ -32,8 +32,8 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ shops });
-  } catch (error) {
-    console.error('Get shops error:', error);
+  } catch {
+    console.error('Get shops error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
 
     try {
       jwt.verify(token, JWT_SECRET);
-    } catch (error) {
+    } catch {
       return NextResponse.json(
         { message: 'Invalid token' },
         { status: 401 }
@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('Create shop error:', error);
+  } catch {
+    console.error('Create shop error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
