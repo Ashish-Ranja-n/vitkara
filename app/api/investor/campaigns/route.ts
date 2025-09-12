@@ -2,57 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import InvestmentCampaign from '@/models/InvestmentCampaign';
 import dbConnect from '@/lib/db';
 
-interface CampaignQuery {
-  status?: string | { $in: string[] };
-  endDate?: { $gte: Date };
-}
+// Import Shop model to ensure it's registered
+import '@/models/shop';
 
 export async function GET(request: NextRequest) {
   try {
     await dbConnect();
 
-    // Get query parameters for filtering
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status') || 'active';
-    const limit = parseInt(searchParams.get('limit') || '50');
-    const page = parseInt(searchParams.get('page') || '1');
-    const skip = (page - 1) * limit;
-
-    // Build query - only return active campaigns for investors
-    const query: CampaignQuery = {};
-
-    if (status === 'active') {
-      // Also include campaigns that are 'funded' or 'repaying' as they are still visible to investors
-      query.status = { $in: ['active', 'funded', 'repaying'] };
-    } else if (status !== 'all') {
-      query.status = status;
-    }
-
-    // Only return campaigns that haven't ended yet
-    const now = new Date();
-    query.endDate = { $gte: now };
-
-    const campaigns = await InvestmentCampaign.find(query)
+    const campaigns = await InvestmentCampaign.find({ status: 'active' })
       .populate('shopId', 'name email location owner verified totalRaised activeCampaigns')
       .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    // Get total count for pagination
-    const total = await InvestmentCampaign.countDocuments(query);
+      .limit(50);
 
     return NextResponse.json({
       campaigns,
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
       success: true,
     });
-  } catch {
-    console.error('Get investor campaigns error');
+  } catch (error) {
+    console.error('Get investor campaigns error:', error);
     return NextResponse.json(
       {
         message: 'Internal server error',
