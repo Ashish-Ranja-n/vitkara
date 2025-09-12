@@ -4,6 +4,7 @@ import dbConnect from '@/lib/db';
 import Investor from '@/models/Investor';
 import Investment from '@/models/Investment';
 import InvestmentCampaign from '@/models/InvestmentCampaign';
+import Shop from '@/models/shop';
 
 interface JWTPayload {
   id: string;
@@ -42,6 +43,7 @@ export async function GET(request: NextRequest) {
         populate: {
           path: 'shopId',
           model: 'Shop',
+          select: 'name location avgUpiTransactions',
         },
       })
       .sort({ purchaseDate: -1 });

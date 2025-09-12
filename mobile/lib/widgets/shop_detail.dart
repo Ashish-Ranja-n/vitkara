@@ -63,6 +63,9 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
               );
 
               if (result != null && result['success'] == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Investment successful!')),
+                );
                 if (result['campaign'] != null) {
                   final newRaised =
                       result['campaign']['currentAmount'] ?? currentShop.raised;
@@ -85,23 +88,20 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
                   );
                 }
                 Navigator.of(context).pop();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Investment successful!')),
-                );
               } else {
                 final message = result?['message'] ?? 'Investment failed';
-                Navigator.of(context).pop();
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(message)));
+                Navigator.of(context).pop();
               }
             } catch (e) {
-              Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Network error occurred')),
               );
+              Navigator.of(context).pop();
             } finally {
-              setState(() => isInvesting = false);
+              if (mounted) setState(() => isInvesting = false);
             }
           }
 

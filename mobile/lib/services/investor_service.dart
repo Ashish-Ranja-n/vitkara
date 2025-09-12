@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class InvestorService {
   static const String baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://192.168.29.22:3000/api',
+    defaultValue: 'https://vitkara.com/api',
   );
 
   // Get investor profile

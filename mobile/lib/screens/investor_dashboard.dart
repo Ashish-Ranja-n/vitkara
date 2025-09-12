@@ -28,7 +28,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   String _selectedSegment = 'All Listings';
   int _refreshCounter = 0;
 
-  // mock user investments keyed by shop name
+  // user investments keyed by shop id
   final Map<String, Map<String, dynamic>> _userInvestments = {};
 
   @override
@@ -71,17 +71,28 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
 
         _userInvestments.clear();
         for (var inv in investments) {
-          final shopData = inv['campaignId']['shopId'] as Map<String, dynamic>;
-          final shopName = shopData['name'] ?? 'Unknown';
+          final campaignData = inv['campaignId'];
+          if (campaignData is! Map<String, dynamic>) continue;
+          final shopData = campaignData['shopId'];
+          if (shopData is! Map<String, dynamic>) continue;
+          final shopId = shopData['_id'] ?? '';
+          final shopName = shopData['name'] ?? 'Unknown Shop';
           final amount = (inv['amount'] ?? 0).toDouble();
           final shares = (inv['shares'] ?? 0).toInt();
 
-          _userInvestments[shopName] = {
-            'units': shares,
-            'invested': amount,
-            'nextPayout': DateTime.now().add(const Duration(days: 7)),
-            'dailyReturn': 0.0,
-          };
+          final prev = _userInvestments[shopId];
+          if (prev != null) {
+            prev['units'] = (prev['units'] as int) + shares;
+            prev['invested'] = (prev['invested'] as double) + amount;
+          } else {
+            _userInvestments[shopId] = {
+              'name': shopName,
+              'units': shares,
+              'invested': amount,
+              'nextPayout': DateTime.now().add(const Duration(days: 7)),
+              'dailyReturn': 0.0,
+            };
+          }
         }
       }
     } catch (e) {
@@ -214,14 +225,15 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
         ticketPrice: shop.ticket,
         onConfirm: (qty) {
           // add to mock investments
-          final prev = _userInvestments[shop.name];
+          final prev = _userInvestments[shop.id];
           final added = qty * shop.ticket;
           setState(() {
             if (prev != null) {
               prev['units'] = prev['units'] + qty;
               prev['invested'] = prev['invested'] + added;
             } else {
-              _userInvestments[shop.name] = {
+              _userInvestments[shop.id] = {
+                'name': shop.name,
                 'units': qty,
                 'invested': added,
                 'nextPayout': DateTime.now().add(const Duration(days: 7)),
@@ -412,10 +424,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                                       List<Shop> base = _filteredShops;
                                       if (_selectedSegment ==
                                           'My Investments') {
-                                        base = _shops
+                                        base = _filteredShops
                                             .where(
                                               (s) => _userInvestments
-                                                  .containsKey(s.name),
+                                                  .containsKey(s.id),
                                             )
                                             .toList();
                                       }
