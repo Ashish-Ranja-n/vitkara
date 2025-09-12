@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../design_tokens.dart';
 
 class Shop {
+  final String id;
   final String name;
   final String category;
   final String city;
@@ -13,8 +14,11 @@ class Shop {
   final double raised;
   final double target;
   final bool trending;
+  final double minInvestment;
+  final double maxInvestment;
 
   Shop({
+    required this.id,
     required this.name,
     required this.category,
     required this.city,
@@ -25,6 +29,8 @@ class Shop {
     required this.raised,
     required this.target,
     this.trending = false,
+    required this.minInvestment,
+    required this.maxInvestment,
   });
 }
 

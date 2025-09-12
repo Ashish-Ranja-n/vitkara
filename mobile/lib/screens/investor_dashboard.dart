@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'investor_profile_page.dart';
 import '../design_tokens.dart';
 import '../widgets/market_summary_card.dart';
@@ -13,6 +11,7 @@ import '../widgets/shimmer_placeholder.dart';
 // previous UserPanel replaced by OverviewBoard
 import '../widgets/overview_board.dart';
 import '../widgets/animated_background.dart';
+import '../services/investor_service.dart';
 
 class InvestorDashboard extends StatefulWidget {
   const InvestorDashboard({super.key});
@@ -45,9 +44,6 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     _loadMockData();
   }
 
-  // API base URL - change this to your actual backend URL
-  static const String _baseUrl = 'https://vitkara.com';
-
   Future<void> _loadMockData() async {
     setState(() => _loading = true);
     try {
@@ -62,20 +58,11 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
 
   Future<void> _fetchCampaigns() async {
     try {
-      final response = await http
-          .get(
-            Uri.parse('$_baseUrl/api/investor/campaigns'),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          )
-          .timeout(const Duration(seconds: 10));
+      final investorService = InvestorService();
+      final result = await investorService.getCampaigns();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final campaigns = data['campaigns'] as List<dynamic>? ?? [];
+      if (result != null && result['success'] != false) {
+        final campaigns = result['campaigns'] as List<dynamic>? ?? [];
 
         if (campaigns.isEmpty) {
           _shops = [];
@@ -87,7 +74,8 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
 
         _applyFilters();
       } else {
-        throw Exception('Failed to load campaigns: ${response.statusCode}');
+        final message = result?['message'] ?? 'Failed to load campaigns';
+        throw Exception(message);
       }
     } catch (e) {
       // Show user-friendly error message
@@ -115,7 +103,9 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     final estReturn = 1.0 + (expectedROI / 100.0);
 
     // Use minimum investment as ticket price
-    final ticket = (campaign['minInvestment'] ?? 100).toDouble();
+    final minInvestment = (campaign['minInvestment'] ?? 100).toDouble();
+    final maxInvestment = (campaign['maxInvestment'] ?? 10000).toDouble();
+    final ticket = minInvestment;
 
     // Use actual average UPI from shop data
     final avgUpi = (shopData['avgUpiTransactions'] ?? 0).toDouble();
@@ -144,6 +134,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     const logoAsset = 'assets/shop1.png';
 
     return Shop(
+      id: campaign['_id'] ?? '',
       name: shopData['name'] ?? 'Unknown Shop',
       category: category,
       city: city,
@@ -154,6 +145,8 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
       raised: currentAmount,
       target: targetAmount,
       trending: trending,
+      minInvestment: minInvestment,
+      maxInvestment: maxInvestment,
     );
   }
 
