@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'investor_profile_page.dart';
 import '../design_tokens.dart';
 import '../widgets/market_summary_card.dart';
@@ -43,56 +45,118 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     _loadMockData();
   }
 
+  // API base URL - change this to your actual backend URL
+  static const String _baseUrl =
+      'https://vitkara.com'; // For Android emulator - use your actual IP for physical devices
+  // For production, use: 'https://your-api-domain.com'
+
   Future<void> _loadMockData() async {
     setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
-    _shops = [
-      Shop(
-        name: 'FreshMart',
-        category: 'Grocery',
-        city: 'Delhi',
-        logoAsset: 'assets/shop1.png',
-        avgUpi: 12000,
-        ticket: 5000,
-        estReturn: 1.3,
-        raised: 35000,
-        target: 50000,
-        trending: true,
-      ),
-      Shop(
-        name: 'Urban Tailor',
-        category: 'Fashion',
-        city: 'Mumbai',
-        logoAsset: 'assets/shop2.png',
-        avgUpi: 8000,
-        ticket: 3000,
-        estReturn: 1.2,
-        raised: 15000,
-        target: 20000,
-      ),
-      Shop(
-        name: 'Chai Point',
-        category: 'Cafe',
-        city: 'Bangalore',
-        logoAsset: 'assets/shop3.png',
-        avgUpi: 10000,
-        ticket: 4000,
-        estReturn: 1.4,
-        raised: 42000,
-        target: 60000,
-        trending: true,
-      ),
-    ];
-    // mock that user has invested in FreshMart: 8 units
-    _userInvestments.clear();
-    _userInvestments['FreshMart'] = {
-      'units': 8,
-      'invested': 40000.0,
-      'nextPayout': DateTime.now().add(const Duration(days: 1)),
-      'dailyReturn': 120.0,
-    };
-    _applyFilters();
+    try {
+      await _fetchCampaigns();
+    } catch (e) {
+      // Set empty list if API fails
+      _shops = [];
+      _applyFilters();
+    }
     setState(() => _loading = false);
+  }
+
+  Future<void> _fetchCampaigns() async {
+    try {
+      final response = await http
+          .get(
+            Uri.parse('$_baseUrl/api/investor/campaigns'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(const Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+
+        final campaigns = data['campaigns'] as List<dynamic>? ?? [];
+
+        if (campaigns.isEmpty) {
+          _shops = [];
+        } else {
+          _shops = campaigns
+              .map((campaign) => _mapCampaignToShop(campaign))
+              .toList();
+        }
+
+        _applyFilters();
+      } else {
+        throw Exception('Failed to load campaigns: ${response.statusCode}');
+      }
+    } catch (e) {
+      // Show user-friendly error message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Unable to load campaigns. Please check your connection.',
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+      rethrow;
+    }
+  }
+
+  Shop _mapCampaignToShop(dynamic campaign) {
+    // Extract shop information from campaign
+    final shopData = campaign['shopId'] as Map<String, dynamic>;
+
+    // Calculate estimated return based on expected ROI
+    final expectedROI = (campaign['expectedROI'] ?? 0).toDouble();
+    final estReturn = 1.0 + (expectedROI / 100.0);
+
+    // Use minimum investment as ticket price
+    final ticket = (campaign['minInvestment'] ?? 100).toDouble();
+
+    // Calculate average UPI (mock calculation based on target)
+    final targetAmount = (campaign['targetAmount'] ?? 0).toDouble();
+    final avgUpi = (targetAmount / 30).roundToDouble(); // Mock daily average
+
+    // Determine if trending based on current vs target ratio
+    final currentAmount = (campaign['currentAmount'] ?? 0).toDouble();
+    final progressRatio = targetAmount > 0 ? currentAmount / targetAmount : 0.0;
+    final trending = progressRatio > 0.5;
+
+    // Determine category based on shop name
+    String category = 'Retail';
+    final shopName = shopData['name'].toString().toLowerCase();
+    if (shopName.contains('mart') || shopName.contains('fresh')) {
+      category = 'Grocery';
+    } else if (shopName.contains('tailor') || shopName.contains('fashion')) {
+      category = 'Fashion';
+    } else if (shopName.contains('chai') || shopName.contains('cafe')) {
+      category = 'Cafe';
+    }
+
+    // Use real city from API
+    final city = shopData['location'] ?? 'Unknown';
+
+    // Fixed logo asset path
+    const logoAsset = 'assets/shop1.png';
+
+    return Shop(
+      name: shopData['name'] ?? 'Unknown Shop',
+      category: category,
+      city: city,
+      logoAsset: logoAsset,
+      avgUpi: avgUpi,
+      ticket: ticket,
+      estReturn: estReturn,
+      raised: currentAmount,
+      target: targetAmount,
+      trending: trending,
+    );
   }
 
   void _applyFilters() {
@@ -211,193 +275,158 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                       ),
                     ),
                   ),
-                  // Fixed segmented control
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: AppColors.cardElevated,
-                              borderRadius: BorderRadius.circular(16),
+                  // Tab and list section with distinct background
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.cardElevated.withOpacity(0.05),
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          // Simple text selector
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => setState(() {
-                                      _selectedSegment = 'All Listings';
-                                      _applyFilters();
-                                    }),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            _selectedSegment == 'All Listings'
-                                            ? AppColors.surface
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'All Listings (${_shops.length})',
-                                          style: TextStyle(
-                                            color:
-                                                _selectedSegment ==
-                                                    'All Listings'
-                                                ? Colors.white
-                                                : AppColors.secondaryText,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
+                                GestureDetector(
+                                  onTap: () => setState(() {
+                                    _selectedSegment = 'All Listings';
+                                    _applyFilters();
+                                  }),
+                                  child: Text(
+                                    'All Listings (${_shops.length})',
+                                    style: TextStyle(
+                                      color: _selectedSegment == 'All Listings'
+                                          ? Colors.white
+                                          : AppColors.secondaryText,
+                                      fontWeight:
+                                          _selectedSegment == 'All Listings'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () => setState(() {
-                                      _selectedSegment = 'My Investments';
-                                      _applyFilters();
-                                    }),
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 10,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            _selectedSegment == 'My Investments'
-                                            ? AppColors.surface
-                                            : Colors.transparent,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Center(
-                                        child: Text(
-                                          'My Investments (${_userInvestments.length})',
-                                          style: TextStyle(
-                                            color:
-                                                _selectedSegment ==
-                                                    'My Investments'
-                                                ? Colors.white
-                                                : AppColors.secondaryText,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
+                                const SizedBox(width: 20),
+                                Text(
+                                  '|',
+                                  style: TextStyle(
+                                    color: AppColors.secondaryText.withOpacity(
+                                      0.5,
+                                    ),
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                GestureDetector(
+                                  onTap: () => setState(() {
+                                    _selectedSegment = 'My Investments';
+                                    _applyFilters();
+                                  }),
+                                  child: Text(
+                                    'My Investments (${_userInvestments.length})',
+                                    style: TextStyle(
+                                      color:
+                                          _selectedSegment == 'My Investments'
+                                          ? Colors.white
+                                          : AppColors.secondaryText,
+                                      fontWeight:
+                                          _selectedSegment == 'My Investments'
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Scrollable shop list only
-                  Expanded(
-                    child: RefreshIndicator(
-                      color: AppColors.accentGreen,
-                      backgroundColor: AppColors.cardElevated,
-                      onRefresh: _loadMockData,
-                      child: ListView(
-                        padding: EdgeInsets.zero,
-                        children: [
-                          // Featured shop card (first shop) - keep but only on All Listings.
-                          if (_shops.isNotEmpty &&
-                              _selectedSegment == 'All Listings')
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 0,
-                              ),
-                              child: ShopCard(
-                                shop: _shops.first,
-                                onInvest: () => _onInvest(_shops.first),
-                                onDetails: () => _onDetails(_shops.first),
-                                accentColor: AppColors.accentOrange,
-                                embedded: true,
-                              ),
-                            ),
-                          // Shop list
-                          if (_loading)
-                            ...List.generate(
-                              3,
-                              (i) => Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 0,
-                                  vertical: 6,
-                                ),
-                                child: ShimmerPlaceholder(height: 120),
-                              ),
-                            )
-                          else if (_filteredShops.isEmpty)
-                            Padding(
-                              padding: const EdgeInsets.all(32.0),
-                              child: Center(
-                                child: Text(
-                                  'No shops found.',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Color(0xFF9AA5AD),
-                                  ),
-                                ),
-                              ),
-                            )
-                          else
-                            () {
-                              // determine shops to display based on segment
-                              List<Shop> base = _filteredShops;
-                              if (_selectedSegment == 'My Investments') {
-                                base = _shops
-                                    .where(
-                                      (s) =>
-                                          _userInvestments.containsKey(s.name),
+                          // Scrollable shop list only
+                          Expanded(
+                            child: RefreshIndicator(
+                              color: AppColors.accentGreen,
+                              backgroundColor: AppColors.cardElevated,
+                              onRefresh: _loadMockData,
+                              child: ListView(
+                                padding: EdgeInsets.zero,
+                                children: [
+                                  // Shop list
+                                  if (_loading)
+                                    ...List.generate(
+                                      3,
+                                      (i) => Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                          vertical: 6,
+                                        ),
+                                        child: ShimmerPlaceholder(height: 120),
+                                      ),
                                     )
-                                    .toList();
-                              }
-                              // avoid duplicating featured in All Listings
-                              final displayedShops =
-                                  (_selectedSegment == 'All Listings' &&
-                                      _shops.isNotEmpty &&
-                                      base.contains(_shops.first))
-                                  ? base
-                                        .where((s) => s != _shops.first)
-                                        .toList()
-                                  : base;
-
-                              return Column(
-                                children: List.generate(displayedShops.length, (
-                                  i,
-                                ) {
-                                  final shop = displayedShops[i];
-                                  return Column(
-                                    children: [
-                                      if (i > 0) const SizedBox(height: 6),
-                                      _StaggeredItem(
-                                        index: i,
-                                        child: ShopCard(
-                                          shop: shop,
-                                          onInvest: () => _onInvest(shop),
-                                          onDetails: () => _onDetails(shop),
-                                          accentColor: AppColors.accentOrange,
-                                          embedded: true,
+                                  else if (_filteredShops.isEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.all(32.0),
+                                      child: Center(
+                                        child: Text(
+                                          'No shops found.',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: Color(0xFF9AA5AD),
+                                          ),
                                         ),
                                       ),
-                                    ],
-                                  );
-                                }),
-                              );
-                            }(),
-                          const SizedBox(height: 20), // Bottom padding
+                                    )
+                                  else
+                                    () {
+                                      // determine shops to display based on segment
+                                      List<Shop> base = _filteredShops;
+                                      if (_selectedSegment ==
+                                          'My Investments') {
+                                        base = _shops
+                                            .where(
+                                              (s) => _userInvestments
+                                                  .containsKey(s.name),
+                                            )
+                                            .toList();
+                                      }
+
+                                      return Column(
+                                        children: List.generate(base.length, (
+                                          i,
+                                        ) {
+                                          final shop = base[i];
+                                          return Column(
+                                            children: [
+                                              if (i > 0)
+                                                const SizedBox(height: 6),
+                                              _StaggeredItem(
+                                                index: i,
+                                                child: ShopCard(
+                                                  shop: shop,
+                                                  onInvest: () =>
+                                                      _onInvest(shop),
+                                                  onDetails: () =>
+                                                      _onDetails(shop),
+                                                  accentColor:
+                                                      AppColors.accentOrange,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                      );
+                                    }(),
+                                  const SizedBox(height: 20), // Bottom padding
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),

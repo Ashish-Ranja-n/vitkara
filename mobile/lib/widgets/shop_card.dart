@@ -33,14 +33,12 @@ class ShopCard extends StatelessWidget {
   final VoidCallback onInvest;
   final VoidCallback onDetails;
   final Color accentColor;
-  final bool embedded;
   const ShopCard({
     super.key,
     required this.shop,
     required this.onInvest,
     required this.onDetails,
     this.accentColor = AppColors.accentGreen,
-    this.embedded = false,
   });
 
   @override
@@ -168,25 +166,30 @@ class ShopCard extends StatelessWidget {
       ),
     );
 
-    if (embedded) {
-      return Padding(
-        // match the horizontal inset used by non-embedded cards so embedded
-        // and featured cards align perfectly.
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadii.card),
-          onTap: onDetails,
-          child: inner,
-        ),
-      );
-    }
-
     return Padding(
+      // match the horizontal inset used by non-embedded cards so embedded
+      // and featured cards align perfectly.
       padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-      child: Material(
-        color: AppColors.cardElevated,
-        borderRadius: BorderRadius.circular(AppRadii.card),
-        elevation: 2,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.cardElevated.withOpacity(0.6),
+              AppColors.cardElevated.withOpacity(0.3),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          borderRadius: BorderRadius.circular(AppRadii.card),
+          border: Border.all(color: accentColor.withOpacity(0.4), width: 1.5),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withOpacity(0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(AppRadii.card),
           onTap: onDetails,
