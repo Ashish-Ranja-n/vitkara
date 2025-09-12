@@ -19,7 +19,7 @@ async function getCurrentUser(request: NextRequest) {
     await dbConnect();
     const investor = await Investor.findById(decoded.id);
     return investor;
-  } catch (error) {
+  } catch {
     return null;
   }
 }
@@ -52,7 +52,7 @@ export async function PUT(request: NextRequest) {
   }
 
   const body = await request.json();
-  const { name, avatar, age, location, city, defaultDashboard, totalInvestment, walletBalance } = body;
+  const { name, avatar, age, location, defaultDashboard, totalInvestment, walletBalance } = body;
 
   if (name !== undefined) investor.name = name;
   if (avatar !== undefined) investor.avatar = avatar;

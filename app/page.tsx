@@ -1,7 +1,6 @@
 import Background from "./components/Background";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import { FaArrowRight } from "react-icons/fa";
 
 export default function Home() {
   return (

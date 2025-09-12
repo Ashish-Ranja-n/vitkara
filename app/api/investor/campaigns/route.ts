@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import InvestmentCampaign from '@/models/InvestmentCampaign';
-import Shop from '@/models/shop';
 import dbConnect from '@/lib/db';
+
+interface CampaignQuery {
+  status?: string | { $in: string[] };
+  endDate?: { $gte: Date };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,7 +19,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
 
     // Build query - only return active campaigns for investors
-    const query: any = {};
+    const query: CampaignQuery = {};
 
     if (status === 'active') {
       query.status = 'active';
