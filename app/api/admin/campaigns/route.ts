@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error) {
-    console.error('Create campaign error:', error);
+  } catch {
+    console.error('Create campaign error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
@@ -168,8 +168,8 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ campaigns });
-  } catch (error) {
-    console.error('Get campaigns error:', error);
+  } catch {
+    console.error('Get campaigns error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }
@@ -241,8 +241,8 @@ export async function PUT(request: NextRequest) {
         targetAmount: campaign.targetAmount,
       }
     });
-  } catch (error) {
-    console.error('Update campaign status error:', error);
+  } catch {
+    console.error('Update campaign status error');
     return NextResponse.json(
       { message: 'Internal server error' },
       { status: 500 }

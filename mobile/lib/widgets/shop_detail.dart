@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'shop_card.dart';
+import '../design_tokens.dart';
 
 class ShopDetailPage extends StatelessWidget {
   final Shop shop;
@@ -7,19 +9,16 @@ class ShopDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currency = NumberFormat.currency(locale: 'en_IN', symbol: '₹');
+    final percent = (shop.raised / shop.target).clamp(0, 1).toDouble();
+    final percentLabel = '${(percent * 100).round()}%';
+
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          shop.name,
-          style: TextStyle(
-            fontFamily: 'Inter',
-            fontWeight: FontWeight.bold,
-            color: Colors.grey[900],
-          ),
-        ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.grey[900],
+        title: Text(shop.name, style: AppTypography.title),
+        backgroundColor: AppColors.surface,
+        foregroundColor: AppColors.primaryText,
         elevation: 0.5,
       ),
       body: Padding(
@@ -32,68 +31,90 @@ class ShopDetailPage extends StatelessWidget {
                 CircleAvatar(
                   radius: 32,
                   backgroundImage: AssetImage(shop.logoAsset),
-                  backgroundColor: Colors.grey[100],
+                  backgroundColor: AppColors.surface,
                 ),
                 const SizedBox(width: 18),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      shop.name,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[900],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        shop.name,
+                        style: AppTypography.cardTitle.copyWith(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                    Text(
-                      '${shop.category} · ${shop.city}',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 15,
-                        color: Colors.grey[600],
+                      Text(
+                        '${shop.category} · ${shop.city}',
+                        style: AppTypography.caption,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 22),
-            Text(
-              'Avg UPI/day: ₹${shop.avgUpi}',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            _buildStatRow('Avg UPI/day', currency.format(shop.avgUpi)),
+            _buildStatRow('Ticket', currency.format(shop.ticket)),
+            _buildStatRow('Est Return', '${shop.estReturn}x'),
+            _buildStatRow('Raised', currency.format(shop.raised)),
+            _buildStatRow('Target', currency.format(shop.target)),
+            const SizedBox(height: 22),
+            Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppRadii.small),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadii.small),
+                child: LinearProgressIndicator(
+                  value: percent,
+                  backgroundColor: Colors.transparent,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AppColors.accentGreen,
+                  ),
+                ),
+              ),
             ),
-            Text(
-              'Ticket: ₹${shop.ticket}',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            ),
-            Text(
-              'Est Return: ${shop.estReturn}x',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            ),
-            Text(
-              'Raised: ₹${shop.raised}',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
-            ),
-            Text(
-              'Target: ₹${shop.target}',
-              style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Progress', style: AppTypography.body),
+                Text(
+                  percentLabel,
+                  style: AppTypography.badge.copyWith(
+                    color: AppColors.primaryText,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 22),
-            LinearProgressIndicator(
-              value: (shop.raised / shop.target).clamp(0, 1).toDouble(),
-              minHeight: 8,
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.teal.shade400),
-            ),
-            const SizedBox(height: 22),
-            Text(
-              'More details coming soon...',
-              style: TextStyle(fontSize: 16, color: Colors.grey[500]),
-            ),
+            Text('More details coming soon...', style: AppTypography.caption),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTypography.body),
+          Text(
+            value,
+            style: AppTypography.bodyLarge.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.primaryText,
+            ),
+          ),
+        ],
       ),
     );
   }

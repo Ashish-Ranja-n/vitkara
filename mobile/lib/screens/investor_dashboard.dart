@@ -46,9 +46,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   }
 
   // API base URL - change this to your actual backend URL
-  static const String _baseUrl =
-      'https://vitkara.com'; // For Android emulator - use your actual IP for physical devices
-  // For production, use: 'https://your-api-domain.com'
+  static const String _baseUrl = 'https://vitkara.com';
 
   Future<void> _loadMockData() async {
     setState(() => _loading = true);

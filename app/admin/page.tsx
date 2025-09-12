@@ -46,7 +46,6 @@ export default function AdminDashboard() {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [shops, setShops] = useState<Shop[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statsLoading, setStatsLoading] = useState(true);
   const [campaignsLoading, setCampaignsLoading] = useState(true);
   const [shopsLoading, setShopsLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -136,7 +135,6 @@ export default function AdminDashboard() {
 
       // Always set loading to false (moved outside try-catch)
       setLoading(false);
-      setStatsLoading(false);
       setCampaignsLoading(false);
       setShopsLoading(false);
     };
@@ -144,7 +142,6 @@ export default function AdminDashboard() {
     // Add a timeout to force loading to complete even if APIs are slow
     const timeoutId = setTimeout(() => {
       setLoading(false);
-      setStatsLoading(false);
       setCampaignsLoading(false);
       setShopsLoading(false);
     }, 10000); // 10 second timeout
@@ -224,7 +221,6 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        const data = await res.json();
         addNotification('success', 'Campaign created successfully!');
         setShowCreateModal(false);
         setFormData({
@@ -278,7 +274,6 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        const data = await res.json();
         addNotification('success', 'Shop created successfully!');
         setShowCreateShopModal(false);
         setShopFormData({
@@ -328,7 +323,6 @@ export default function AdminDashboard() {
       });
 
       if (res.ok) {
-        const data = await res.json();
         addNotification('success', 'Campaign status updated successfully!');
 
         // Update the campaign in the local state
