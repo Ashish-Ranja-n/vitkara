@@ -26,6 +26,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   List<Shop> _shops = [];
   List<Shop> _filteredShops = [];
   String _selectedSegment = 'All Listings';
+  int _refreshCounter = 0;
 
   // mock user investments keyed by shop name
   final Map<String, Map<String, dynamic>> _userInvestments = {};
@@ -53,7 +54,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
       _shops = [];
       _applyFilters();
     }
-    setState(() => _loading = false);
+    setState(() {
+      _loading = false;
+      _refreshCounter++;
+    });
   }
 
   Future<void> _fetchCampaigns() async {
@@ -205,7 +209,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => ShopDetailPage(shop: shop)),
-    );
+    ).then((_) => _loadMockData());
   }
 
   @override
@@ -250,7 +254,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                   // Fixed header
                   _StickyMarketHeader().build(context, 0, false),
                   // Fixed overview board
-                  const OverviewBoard(),
+                  OverviewBoard(key: ValueKey(_refreshCounter)),
                   // Fixed market summary
                   Padding(
                     padding: const EdgeInsets.symmetric(

@@ -4,7 +4,6 @@ import dbConnect from '@/lib/db';
 import Investor from '@/models/Investor';
 import Investment from '@/models/Investment';
 import InvestmentCampaign from '@/models/InvestmentCampaign';
-import Transaction from '@/models/Transaction';
 
 interface JWTPayload {
   id: string;
@@ -123,15 +122,6 @@ export async function POST(request: NextRequest) {
     investor.walletBalance -= amount;
     investor.totalInvestment += amount;
     await investor.save();
-
-    // Create transaction record
-    await Transaction.create({
-      investorId: investor._id,
-      type: 'investment',
-      amount,
-      campaignId: campaign._id,
-      investmentId: investment._id,
-    });
 
     return NextResponse.json({
       investment: {
