@@ -17,7 +17,7 @@ const Header = () => {
   return (
     <header className="w-full flex items-center justify-between p-4 sm:p-6 sticky top-0">
       <div className={`flex items-center gap-2 transition-all duration-300 ${isScrolled ? 'backdrop-blur-lg bg-cyan-400/10 rounded-md' : ''}`}>
-        <Image src="/vitkara_logo3.png" alt="Vitkara Logo" width={50} height={50} className="h-[25px] sm:h-[50px] w-auto" />
+        <Image src="/vitkara_logo3.png" alt="Vitkara Logo" width={500} height={500} className="h-[25px] sm:h-[50px] w-auto" />
       </div>
 
     </header>

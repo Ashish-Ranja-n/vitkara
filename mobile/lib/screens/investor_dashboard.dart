@@ -36,6 +36,7 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
   void initState() {
     super.initState();
     // Set status bar for dark theme
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Color(0xFF12171C),
@@ -397,7 +398,10 @@ class _InvestorDashboardState extends State<InvestorDashboard> {
                             child: RefreshIndicator(
                               color: AppColors.accentGreen,
                               backgroundColor: AppColors.cardElevated,
-                              onRefresh: _loadMockData,
+                              onRefresh: () => _loadMockData(
+                                includeAll:
+                                    _selectedSegment == 'My Investments',
+                              ),
                               child: ListView(
                                 padding: EdgeInsets.zero,
                                 children: [
