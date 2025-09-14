@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
+import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import Investor from '@/models/Investor';
 import Investment from '@/models/Investment';
@@ -97,6 +98,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate campaignId format
+    if (!mongoose.Types.ObjectId.isValid(campaignId)) {
+      return NextResponse.json(
+        { message: 'Invalid campaign ID format' },
+        { status: 400 }
+      );
+    }
+
     if (tickets < 1 || !Number.isInteger(tickets)) {
       return NextResponse.json(
         { message: 'Number of tickets must be a positive integer' },
@@ -106,8 +115,11 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
+    console.log('Received campaignId:', campaignId);
+
     // Find the campaign
     const campaign = await InvestmentCampaign.findById(campaignId);
+    console.log('Found campaign:', campaign);
     if (!campaign) {
       return NextResponse.json(
         { message: 'Campaign not found' },
