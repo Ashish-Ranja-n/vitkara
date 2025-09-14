@@ -115,10 +115,10 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
-    console.log('Received campaignId:', campaignId);
+    console.log('Received shopId (used as campaignId):', campaignId);
 
-    // Find the campaign
-    const campaign = await InvestmentCampaign.findById(campaignId);
+    // Find the active campaign for this shop
+    const campaign = await InvestmentCampaign.findOne({ shopId: campaignId, status: 'active' });
     console.log('Found campaign:', campaign);
     if (!campaign) {
       return NextResponse.json(
