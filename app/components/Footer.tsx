@@ -49,11 +49,7 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-bold mb-4">Quick Links</h3>
           <ul className="space-y-2">
-            <li>
-              <a href="#" className="text-gray-400 hover:text-white">
-                Privacy policy
-              </a>
-            </li>
+           
             <li>
               <a href="/terms" className="text-gray-400 hover:text-white">
                 Terms & conditions
