@@ -1,22 +1,29 @@
 import React from 'react';
+import Background from '../components/Background';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 /* eslint-disable react/no-unescaped-entities */
 
 const TermsAndConditions = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-center text-gray-900 mb-8">
-          VITKARA - Terms & Conditions
-        </h1>
+    <div className="relative min-h-screen text-white">
+      <Background />
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto">
+            <h1 className="text-3xl font-bold text-center text-white mb-8">
+              VITKARA - Terms & Conditions
+            </h1>
 
         {/* Merchant Terms & Conditions */}
-        <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        <div className="bg-black/50 backdrop-blur-sm border border-cyan-400/20 rounded-lg p-6 mb-8">
+          <h2 className="text-2xl font-semibold text-cyan-400 mb-6">
             Merchant Terms & Conditions
           </h2>
 
-          <div className="space-y-4 text-gray-700">
+          <div className="space-y-4 text-gray-300">
             <div>
               <h3 className="text-lg font-medium mb-2">1. Introduction</h3>
               <p>These Terms & Conditions ("Agreement") govern the relationship between VITKARA ("Company") and the Merchant ("You") who receives funds for business growth. By accepting funds, you accept all terms below.</p>
@@ -107,12 +114,12 @@ const TermsAndConditions = () => {
         </div>
 
         {/* Investor Terms & Conditions */}
-        <div className="bg-white shadow-lg rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        <div className="bg-black/50 backdrop-blur-sm border border-cyan-400/20 rounded-lg p-6 mb-8">
+          <h2 className="text-2xl font-semibold text-cyan-400 mb-6">
             Investor Terms & Conditions
           </h2>
 
-          <div className="space-y-4 text-gray-700">
+          <div className="space-y-4 text-gray-300">
             <div>
               <h3 className="text-lg font-medium mb-2">1. Introduction</h3>
               <p>These Terms & Conditions ("Agreement") govern the relationship between VITKARA ("Company") and the Investor ("You") who provides funds for business growth of Merchants onboarded on the VITKARA platform.</p>
@@ -178,12 +185,12 @@ const TermsAndConditions = () => {
         </div>
 
         {/* Platform Terms & Conditions */}
-        <div className="bg-white shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6">
+        <div className="bg-black/50 backdrop-blur-sm border border-cyan-400/20 rounded-lg p-6">
+          <h2 className="text-2xl font-semibold text-cyan-400 mb-6">
             Platform Terms & Conditions
           </h2>
 
-          <div className="space-y-4 text-gray-700">
+          <div className="space-y-4 text-gray-300">
             <div>
               <h3 className="text-lg font-medium mb-2">1. Introduction</h3>
               <p>These Terms & Conditions ("Agreement") govern your access to and use of the VITKARA platform, website, and mobile applications ("Platform"). By using VITKARA, you agree to comply with these Terms.</p>
@@ -282,6 +289,9 @@ const TermsAndConditions = () => {
             </div>
           </div>
         </div>
+          </div>
+        </main>
+        <Footer />
       </div>
     </div>
   );
