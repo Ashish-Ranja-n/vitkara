@@ -13,7 +13,7 @@ const Footer = () => {
           </p>
             <div className="mt-6 flex items-center space-x-3">
               <a
-                href="https://play.google.com/store/apps"
+                href="https://github.com/Ashish-Ranja-n/vitkara/releases/download/v1.0.0/VITKARA.apk"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Get Vitkara on Google Play"

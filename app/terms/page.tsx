@@ -93,7 +93,7 @@ const TermsAndConditions = () => {
               <h3 className="text-lg font-medium mb-2">9. Governing Law & Dispute Resolution</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>Governed by the laws of India.</li>
-                <li>Disputes resolved via arbitration in [Your City, India], or local courts if required.</li>
+                <li>Disputes resolved via arbitration in Sitamarhi, Bihar, or local courts if required.</li>
               </ul>
             </div>
 
@@ -164,7 +164,7 @@ const TermsAndConditions = () => {
               <h3 className="text-lg font-medium mb-2">7. Governing Law & Dispute Resolution</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>Governed by the laws of India.</li>
-                <li>Disputes resolved via arbitration in [Your City, India], or local courts if required.</li>
+                <li>Disputes resolved via arbitration in Sitamarhi, Bihar, or local courts if required.</li>
               </ul>
             </div>
 
@@ -270,7 +270,7 @@ const TermsAndConditions = () => {
               <h3 className="text-lg font-medium mb-2">11. Governing Law & Dispute Resolution</h3>
               <ul className="list-disc list-inside space-y-1">
                 <li>Governed by the laws of India.</li>
-                <li>Disputes will be resolved via arbitration in [Your City, India], or by local courts as applicable.</li>
+                <li>Disputes will be resolved via arbitration in Sitamarhi, Bihar, or by local courts as applicable.</li>
               </ul>
             </div>
 
