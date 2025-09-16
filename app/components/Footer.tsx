@@ -51,16 +51,6 @@ const Footer = () => {
           <ul className="space-y-2">
             <li>
               <a href="#" className="text-gray-400 hover:text-white">
-                About Us
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-gray-400 hover:text-white">
-                Contact Us
-              </a>
-            </li>
-            <li>
-              <a href="#" className="text-gray-400 hover:text-white">
                 Privacy policy
               </a>
             </li>
