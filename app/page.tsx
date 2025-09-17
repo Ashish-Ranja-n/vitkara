@@ -14,7 +14,7 @@ export default function Home() {
             <br />
             <span className="text-cyan-400">Empower Local Shops.</span>
           </h1>
-          
+          <p className="text-xl sm:text-2xl text-gray-300 mb-8">Coming soon...</p>
         </main>
         <Footer />
       </div>

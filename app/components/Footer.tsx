@@ -11,6 +11,7 @@ const Footer = () => {
           <p className="text-gray-400">
             An Investment Marketplace for Investors and Businesses.
           </p>
+          <p className="text-gray-400 mt-2">Contact: +917301677612</p>
             <div className="mt-6 flex items-center space-x-3">
               <a
                 href="https://github.com/Ashish-Ranja-n/vitkara/releases/download/v1.0.0/VITKARA.apk"
