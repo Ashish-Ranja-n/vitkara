@@ -24,7 +24,7 @@ const AccountDeletion = () => {
 
                 <div>
                   <h3 className="text-lg font-medium mb-2">1. Contact Support</h3>
-                  <p>Send an email to support@vitkara.com with the subject "Account Deletion Request" and include your registered email address and phone number.</p>
+                  <p>Send an email to support@vitkara.com with the subject 'Account Deletion Request' and include your registered email address and phone number.</p>
                 </div>
 
                 <div>

@@ -5,7 +5,6 @@ import dbConnect from '@/lib/db';
 import Investor from '@/models/Investor';
 import Investment from '@/models/Investment';
 import InvestmentCampaign from '@/models/InvestmentCampaign';
-import Shop from '@/models/shop';
 
 interface JWTPayload {
   id: string;
