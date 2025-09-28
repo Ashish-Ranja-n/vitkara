@@ -52,9 +52,7 @@ class _ShopDetailPageState extends State<ShopDetailPage> {
             if (ticketCount > maxTickets) {
               Navigator.of(context).pop();
               ScaffoldMessenger.of(outerContext).showSnackBar(
-                SnackBar(
-                  content: Text('Maximum ${maxTickets} tickets allowed'),
-                ),
+                SnackBar(content: Text('Maximum $maxTickets tickets allowed')),
               );
               return;
             }

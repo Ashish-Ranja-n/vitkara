@@ -50,10 +50,15 @@ const Footer = () => {
         <div>
           <h3 className="text-lg font-bold mb-4">Quick Links</h3>
           <ul className="space-y-2">
-           
+
             <li>
               <a href="/terms" className="text-gray-400 hover:text-white">
                 Terms & conditions
+              </a>
+            </li>
+            <li>
+              <a href="/privacypolicy" className="text-gray-400 hover:text-white">
+                Privacy Policy
               </a>
             </li>
           </ul>
